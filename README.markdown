@@ -14,7 +14,7 @@ looking for the *answers* (not the exercises), please go to https://github.com/t
 #### Special note 2
 
 As of February 2017, this repository is taking the place of the repository hosted at
-https://github.com/NICTA/course which is deprecated. 
+https://github.com/NICTA/course which is deprecated.
 
 Data61 replaces what was NICTA since July 2016. The new repository is located at
 https://github.com/data61/fp-course.
@@ -198,6 +198,10 @@ tests for the `List` module you could run:
 Likewise, to run only the tests for the `headOr` function in the `List` module, you could use:
 
     > cabal test tasty --show-detail=direct --test-option=--pattern="List.headOr"
+
+The `./bin/test` script can serve as a shorthand for running test subsets. It invokes the cabal test
+command with a "Tests." prefix. For example, `./bin/test "List."` and `./bin/test "List.headOr"` will run
+the same tests as the cabal commands above.
 
 In addition, GHCi may be used to run tasty tests. Assuming you have run `ghci`
 from the root of the project, you may do the following. Remember that GHCi has
