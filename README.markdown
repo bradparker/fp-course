@@ -176,32 +176,22 @@ module, tests for each function are grouped using the `testGroup` function.
 Within each test group there are test cases (`testCase` function), and
 properties (`testProperty` function).
 
-Before running the tests, ensure that you have an up-to-date installation
-of GHC and cabal-install from your system package manager or use the minimal
-installers found at [haskell.org](https://www.haskell.org/downloads#minimal).
+You can run the tests from outside or inside `ghci` but should be inside
+the `nix-shell`.
 
-To run the full test suite, build the project as follows:
+##### Running outside ghci
 
-    > cabal update
-    > cabal install --only-dependencies --enable-tests
-    > cabal configure --enable-tests
-    > cabal build
-    > cabal test
+1. Run all the tests once: `cabal test`
+1. Run a specific test group:`./bin/test "List."`
+    * will run all tests in the "Tests.List" tasty
+    test group.
+    * The long hand form of this is `cabal test tasty --show-detail=direct
+    --test-option=--pattern="Tests.List."`
+1. Watch a test subtree `./bin/watch [test tree name]`, e.g.
+`./bin/watch test_List`. These values you can pass can all
+be found in `TastyLoader.hs`.
 
-Tasty will also allow you to run only those tests whose description match a
-pattern. Tests are organised in nested groups named after the relevant module
-and function, so pattern matching should be intuitive. For example, to run the
-tests for the `List` module you could run:
-
-    > cabal test tasty --show-detail=direct --test-option=--pattern="Tests.List."
-
-Likewise, to run only the tests for the `headOr` function in the `List` module, you could use:
-
-    > cabal test tasty --show-detail=direct --test-option=--pattern="List.headOr"
-
-The `./bin/test` script can serve as a shorthand for running test subsets. It invokes the cabal test
-command with a "Tests." prefix. For example, `./bin/test "List."` and `./bin/test "List.headOr"` will run
-the same tests as the cabal commands above.
+##### Running in ghci
 
 In addition, GHCi may be used to run tasty tests. Assuming you have run `ghci`
 from the root of the project, you may do the following. Remember that GHCi has
