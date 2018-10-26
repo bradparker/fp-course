@@ -75,8 +75,7 @@ headOr ::
   a
   -> List a
   -> a
-headOr =
-  error "todo: Course.List#headOr"
+headOr = foldRight const
 
 -- | The product of the elements of a list.
 --
@@ -91,8 +90,7 @@ headOr =
 product ::
   List Int
   -> Int
-product =
-  error "todo: Course.List#product"
+product = foldRight (*) 1
 
 -- | Sum the elements of the list.
 --
@@ -106,8 +104,10 @@ product =
 sum ::
   List Int
   -> Int
-sum =
-  error "todo: Course.List#sum"
+sum = foldRight (+) 0
+
+addOne :: Int -> Int
+addOne n = n + 1
 
 -- | Return the length of the list.
 --
@@ -118,8 +118,7 @@ sum =
 length ::
   List a
   -> Int
-length =
-  error "todo: Course.List#length"
+length = foldRight (const addOne) 0
 
 -- | Map the given function on each element of the list.
 --
