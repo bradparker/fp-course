@@ -6,7 +6,7 @@ module Course.ListTest where
 import qualified Prelude               as P (length)
 
 import           Test.QuickCheck       (forAllShrink)
-import           Test.Tasty            (TestTree, testGroup)
+import           Test.Tasty            (TestTree, testGroup, defaultMain)
 import           Test.Tasty.HUnit      (testCase, (@?=))
 import           Test.Tasty.QuickCheck (testProperty)
 
@@ -22,6 +22,9 @@ import           Course.List           (List (..), filter, find, flatMap,
                                         lengthGT4, listh, map, produce, product,
                                         reverse, seqOptional, sum, take, (++))
 import           Course.Optional       (Optional (..))
+
+t :: TestTree -> IO ()
+t = defaultMain
 
 test_List :: TestTree
 test_List =
