@@ -75,8 +75,9 @@ headOr ::
   a
   -> List a
   -> a
-headOr =
-  error "todo: Course.List#headOr"
+headOr d Nil = d
+headOr _ (x:._) = x
+  
 
 -- | The product of the elements of a list.
 --
@@ -91,8 +92,9 @@ headOr =
 product ::
   List Int
   -> Int
-product =
-  error "todo: Course.List#product"
+product Nil = 1
+product (x:.xs) = x * product xs
+  
 
 -- | Sum the elements of the list.
 --
@@ -106,8 +108,8 @@ product =
 sum ::
   List Int
   -> Int
-sum =
-  error "todo: Course.List#sum"
+sum Nil = 0
+sum (x:.xs) = x + sum xs
 
 -- | Return the length of the list.
 --
@@ -118,8 +120,8 @@ sum =
 length ::
   List a
   -> Int
-length =
-  error "todo: Course.List#length"
+length Nil = 0
+length (_:.xs) = 1 + length xs
 
 -- | Map the given function on each element of the list.
 --
@@ -133,8 +135,8 @@ map ::
   (a -> b)
   -> List a
   -> List b
-map =
-  error "todo: Course.List#map"
+map _ Nil = Nil
+map f (x:.xs) = f x :. map f xs
 
 -- | Return elements satisfying the given predicate.
 --
@@ -150,8 +152,10 @@ filter ::
   (a -> Bool)
   -> List a
   -> List a
-filter =
-  error "todo: Course.List#filter"
+filter _ Nil = Nil
+filter p (x:.xs)
+  | p x = x :. filter p xs
+  | otherwise = filter p xs
 
 -- | Append two lists to a new list.
 --
@@ -169,8 +173,9 @@ filter =
   List a
   -> List a
   -> List a
-(++) =
-  error "todo: Course.List#(++)"
+(++) Nil x = x
+(++) x Nil = x
+(++) (x:.xs) y = x :. xs ++ y
 
 infixr 5 ++
 
@@ -187,8 +192,8 @@ infixr 5 ++
 flatten ::
   List (List a)
   -> List a
-flatten =
-  error "todo: Course.List#flatten"
+flatten = foldRight (++) Nil
+  
 
 -- | Map a function then flatten to a list.
 --
@@ -204,8 +209,7 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap =
-  error "todo: Course.List#flatMap"
+flatMap f = flatten . map f
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
@@ -214,8 +218,7 @@ flatMap =
 flattenAgain ::
   List (List a)
   -> List a
-flattenAgain =
-  error "todo: Course.List#flattenAgain"
+flattenAgain = flatMap id
 
 -- | Convert a list of optional values to an optional list of values.
 --
@@ -242,8 +245,11 @@ flattenAgain =
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional =
-  error "todo: Course.List#seqOptional"
+seqOptional = foldRight abb (Full Nil)
+  where 
+  abb Empty _ = Empty
+  abb _ Empty = Empty
+  abb (Full x) (Full acc) = Full $ x :. acc
 
 -- | Find the first element in the list matching the predicate.
 --
@@ -265,8 +271,7 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find =
-  error "todo: Course.List#find"
+find p = headOr Empty . map Full . filter p
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -285,7 +290,9 @@ lengthGT4 ::
   List a
   -> Bool
 lengthGT4 =
-  error "todo: Course.List#lengthGT4"
+  (>4) . length . take 5
+
+
 
 -- | Reverse a list.
 --
@@ -302,7 +309,7 @@ reverse ::
   List a
   -> List a
 reverse =
-  error "todo: Course.List#reverse"
+  foldLeft (flip (:.)) Nil
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
