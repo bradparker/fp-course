@@ -4,7 +4,7 @@
 
 module Course.FunctorTest where
 
-import           Test.Tasty            (TestTree, testGroup)
+import           Test.Tasty            (TestTree, testGroup, defaultMain)
 import           Test.Tasty.HUnit      (testCase, (@?=))
 import           Test.Tasty.QuickCheck (testProperty)
 
@@ -13,6 +13,9 @@ import           Course.ExactlyOne     (ExactlyOne (..))
 import           Course.Functor        (void, (<$), (<$>))
 import           Course.List           (List (..))
 import           Course.Optional       (Optional (..))
+
+t :: TestTree -> IO ()
+t = defaultMain
 
 test_Functor :: TestTree
 test_Functor =
