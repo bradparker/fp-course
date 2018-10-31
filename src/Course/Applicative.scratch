@@ -1,0 +1,58 @@
+Goal:
+(sequence .) . replicate :: Int -> f x -> f (List x)
+
+(.) :: (b -> c) -> (a -> b) -> a -> c 
+a -> c :: Int -> f x -> f (List x)
+
+then let
+a :: Int
+c :: f x -> f (List x) 
+
+and since
+a -> b :: replicate :: Int -> y -> List y
+b :: y -> List y
+
+(.) :: ((y -> List y) -> (f x -> f (List x))) -> (Int -> (y -> List y)) -> Int -> (f x -> f (List x)) 
+
+to get the return type we need then y :: f x, i.e.
+
+(.) :: ((f x -> List (f x)) -> (f x -> f (List x))) -> (Int -> (f x -> List (f x))) -> Int -> (f x -> f (List x)) 
+
+asking ghci for the type of (sequence .)
+(sequence .) :: (a1 -> List (f a2)) -> a1 -> f (List a2)
+which is the same as 
+(f x -> List (f  x)) -> (f x -> f (List  x))
+( a1 -> List (f a2)) ->   a1 -> f (List a2)
+if
+ a1 :: f x
+ a2 :: x
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

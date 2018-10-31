@@ -4,7 +4,7 @@
 
 module Course.ApplicativeTest where
 
-import           Test.Tasty            (TestTree, testGroup)
+import           Test.Tasty            (TestTree, testGroup, defaultMain)
 import           Test.Tasty.HUnit      (testCase, (@?=))
 import           Test.Tasty.QuickCheck (testProperty)
 
@@ -17,6 +17,9 @@ import           Course.Functor        ((<$>))
 import           Course.List           (List (..), filter, length, listh,
                                         product, sum)
 import           Course.Optional       (Optional (..))
+
+t :: TestTree -> IO ()
+t = defaultMain
 
 test_Applicative :: TestTree
 test_Applicative =

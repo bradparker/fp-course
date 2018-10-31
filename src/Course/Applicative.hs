@@ -47,14 +47,12 @@ instance Applicative ExactlyOne where
   pure ::
     a
     -> ExactlyOne a
-  pure =
-    error "todo: Course.Applicative pure#instance ExactlyOne"
-  (<*>) ::
+  pure = ExactlyOne
+  (<*>) :: 
     ExactlyOne (a -> b)
     -> ExactlyOne a
     -> ExactlyOne b
-  (<*>) =
-    error "todo: Course.Applicative (<*>)#instance ExactlyOne"
+  ExactlyOne f <*> ea = f <$> ea
 
 -- | Insert into a List.
 --
@@ -66,14 +64,17 @@ instance Applicative List where
   pure ::
     a
     -> List a
-  pure =
-    error "todo: Course.Applicative pure#instance List"
+  pure = (flip (:.)) Nil
   (<*>) ::
     List (a -> b)
     -> List a
     -> List b
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance List"
+  -- is there are more point free style. Help me Papa Furn!
+  fs <*> as = foldRight (\f bs -> (f <$> as) ++ bs) Nil fs
+  -- Nil <*> _ = Nil
+  -- _ <*> Nil = Nil
+  -- (f:.fs) <*> as = map f as ++ (fs <*> as)
+
 
 -- | Insert into an Optional.
 --
@@ -91,14 +92,27 @@ instance Applicative Optional where
   pure ::
     a
     -> Optional a
-  pure =
-    error "todo: Course.Applicative pure#instance Optional"
+  pure = Full
   (<*>) ::
     Optional (a -> b)
     -> Optional a
     -> Optional b
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance Optional"
+  oab <*> oa = bindOptional (`mapOptional` oa) oab
+
+  -- mapOptional :: (a -> b) -> Optional a -> Optional b
+  -- bindOptional :: (a -> Optional b) -> Optional a -> Optional b
+  -- now make a :: a -> b
+  -- bindOptional :: ((a -> b) -> Optional b) -> Optional (a -> b) -> Optional b
+  --                 ^^^^^^^^^^^^^^^^^^^^^^^^ This is (`mapOptiona` oa)
+ 
+  -- without bindOptional, but using fmap
+  -- Empty <*> _ = Empty
+  -- (Full f) <*> oa = f <$> oa
+
+  -- or pattern match it out
+  -- Empty <*> _ = Empty
+  -- (Full _) <*> Empty = Empty
+  -- (Full f) <*> (Full a) = Full (f a)
 
 -- | Insert into a constant function.
 --
@@ -121,16 +135,17 @@ instance Applicative Optional where
 instance Applicative ((->) t) where
   pure ::
     a
-    -> ((->) t a)
-  pure =
-    error "todo: Course.Applicative pure#((->) t)"
+    -> (t -> a)
+  pure = const
   (<*>) ::
-    ((->) t (a -> b))
-    -> ((->) t a)
-    -> ((->) t b)
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance ((->) t)"
+    (t -> a -> b)
+    -> (t -> a)
+    -> (t -> b)
+  -- just add the t as another argument on the left. Sneaky.
+  (<*>) tab ta t = tab t (ta t)                           
 
+  -- or just use a lambda, if that's more your style
+  -- tab <*> ta = \t -> tab t (ta t)
 
 -- | Apply a binary function in the environment.
 --
@@ -157,8 +172,7 @@ lift2 ::
   -> f a
   -> f b
   -> f c
-lift2 =
-  error "todo: Course.Applicative#lift2"
+lift2 f fa fb = f <$> fa <*> fb 
 
 -- | Apply a ternary function in the environment.
 -- /can be written using `lift2` and `(<*>)`./
@@ -190,8 +204,7 @@ lift3 ::
   -> f b
   -> f c
   -> f d
-lift3 =
-  error "todo: Course.Applicative#lift3"
+lift3 f fa fb = (lift2 f fa fb <*>)
 
 -- | Apply a quaternary function in the environment.
 -- /can be written using `lift3` and `(<*>)`./
@@ -224,16 +237,14 @@ lift4 ::
   -> f c
   -> f d
   -> f e
-lift4 =
-  error "todo: Course.Applicative#lift4"
+lift4 f fa fb fc = (lift3 f fa fb fc <*>) 
 
 -- | Apply a nullary function in the environment.
 lift0 ::
   Applicative f =>
   a
   -> f a
-lift0 =
-  error "todo: Course.Applicative#lift0"
+lift0 = pure
 
 -- | Apply a unary function in the environment.
 -- /can be written using `lift0` and `(<*>)`./
@@ -251,8 +262,7 @@ lift1 ::
   (a -> b)
   -> f a
   -> f b
-lift1 =
-  error "todo: Course.Applicative#lift1"
+lift1 f fa = lift0 f <*> fa
 
 -- | Apply, discarding the value of the first argument.
 -- Pronounced, right apply.
@@ -277,8 +287,24 @@ lift1 =
   f a
   -> f b
   -> f b
-(*>) =
-  error "todo: Course.Applicative#(*>)"
+(*>) fa fb = id <$ fa <*> fb
+
+-- This still runs the "effect" of fa, it just doesn't care about
+-- the result. What "effect" means depends on the functor/applicative
+-- in question. Let's lock f down to Optional and say a is Int and 
+-- b is String. The "effect" as far as Optional is concerned
+-- is running a computation on a value that may or may not exist.
+--
+-- (*>) :: Optional Int -> Optional String -> Optional String
+-- Empty *> _ = Empty                                            
+-- Full _ *> os = os
+--
+-- So despite the fact that we don't care about the Int _inside_
+-- the Optional Int, it's emptiness still influenced the result, 
+-- i.e. if it was empty then the whole result was empty.
+--
+-- When it was not empty we didn't care about the int value,
+-- we just returned the Optional String that was passed in.
 
 -- | Apply, discarding the value of the second argument.
 -- Pronounced, left apply.
@@ -303,8 +329,11 @@ lift1 =
   f b
   -> f a
   -> f b
-(<*) =
-  error "todo: Course.Applicative#(<*)"
+(<*) = lift2 const
+
+-- Empty <* _ = Empty
+-- (Full a) <* Empty = Empty
+-- (Full a) <* (Full b) = Full a
 
 -- | Sequences a list of structures to a structure of list.
 --
@@ -326,12 +355,9 @@ sequence ::
   Applicative f =>
   List (f a)
   -> f (List a)
-sequence =
-  error "todo: Course.Applicative#sequence"
+sequence = foldRight (lift2 (:.)) (pure Nil)
 
 -- | Replicate an effect a given number of times.
---
--- /Tip:/ Use `Course.List#replicate`.
 --
 -- >>> replicateA 4 (ExactlyOne "hi")
 -- ExactlyOne ["hi","hi","hi","hi"]
@@ -352,8 +378,7 @@ replicateA ::
   Int
   -> f a
   -> f (List a)
-replicateA =
-  error "todo: Course.Applicative#replicateA"
+replicateA = (sequence .) . replicate
 
 -- | Filter a list with a predicate that produces an effect.
 --
@@ -380,8 +405,11 @@ filtering ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filtering =
-  error "todo: Course.Applicative#filtering"
+filtering f = foldRight (\a -> lift2 (takeIf a) (f a)) (pure Nil) 
+  where
+    takeIf :: a -> Bool -> List a -> List a
+    takeIf _ False = id
+    takeIf a True = (a:.)
 
 -----------------------
 -- SUPPORT LIBRARIES --
