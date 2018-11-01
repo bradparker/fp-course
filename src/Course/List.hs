@@ -132,8 +132,8 @@ map ::
   (a -> b)
   -> List a
   -> List b
-map =
-  error "todo: Course.List#map"
+map _ Nil = Nil
+map fn (h :. t) = fn h :. map fn t 
 
 -- | Return elements satisfying the given predicate.
 --
@@ -149,8 +149,8 @@ filter ::
   (a -> Bool)
   -> List a
   -> List a
-filter =
-  error "todo: Course.List#filter"
+filter _ Nil = Nil
+filter fn (h :. t) = if fn h then h :. filter fn t else filter fn t 
 
 -- | Append two lists to a new list.
 --
@@ -168,8 +168,9 @@ filter =
   List a
   -> List a
   -> List a
-(++) =
-  error "todo: Course.List#(++)"
+(++) Nil Nil = Nil
+(++) Nil (h :. t) = h :. (++) Nil t
+(++) (h :. t) l2 = h :. (++) t l2
 
 infixr 5 ++
 
@@ -186,8 +187,8 @@ infixr 5 ++
 flatten ::
   List (List a)
   -> List a
-flatten =
-  error "todo: Course.List#flatten"
+flatten Nil = Nil
+flatten (h :. t) = h ++ flatten t
 
 -- | Map a function then flatten to a list.
 --
@@ -203,8 +204,8 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap =
-  error "todo: Course.List#flatMap"
+flatMap _ Nil = Nil
+flatMap fn (h :. t) = fn h ++ flatMap fn t  
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
@@ -213,8 +214,7 @@ flatMap =
 flattenAgain ::
   List (List a)
   -> List a
-flattenAgain =
-  error "todo: Course.List#flattenAgain"
+flattenAgain = flatMap id
 
 -- | Convert a list of optional values to an optional list of values.
 --
@@ -241,8 +241,10 @@ flattenAgain =
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional =
-  error "todo: Course.List#seqOptional"
+seqOptional = foldRight f (Full Nil)
+  where f Empty _ = Empty 
+        f _ Empty = Empty
+        f (Full elm) (Full l) = Full (elm :. l)
 
 -- | Find the first element in the list matching the predicate.
 --
@@ -264,8 +266,8 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find =
-  error "todo: Course.List#find"
+find f l = foldRight (\x _ -> Full x) Empty (filter f l)
+        
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -300,8 +302,7 @@ lengthGT4 =
 reverse ::
   List a
   -> List a
-reverse =
-  error "todo: Course.List#reverse"
+reverse = foldRight (:.) Nil
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
