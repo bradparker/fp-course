@@ -3,7 +3,7 @@
 
 module Course.OptionalTest where
 
-import           Test.Tasty       (TestTree, testGroup)
+import           Test.Tasty       (TestTree, testGroup, defaultMain)
 import           Test.Tasty.HUnit (testCase, (@?=))
 
 import           Course.Core
@@ -20,6 +20,9 @@ test_Optional =
   , optionalTest
   ]
 
+t :: TestTree -> IO ()
+t = defaultMain
+ 
 mapOptionalTest :: TestTree
 mapOptionalTest =
   testGroup "mapOptional" [
