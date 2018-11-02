@@ -285,8 +285,7 @@ find f l = foldRight (\x _ -> Full x) Empty (filter f l)
 lengthGT4 ::
   List a
   -> Bool
-lengthGT4 =
-  error "todo: Course.List#lengthGT4"
+lengthGT4 list = length (take 5 list) > 4
 
 -- | Reverse a list.
 --
@@ -302,7 +301,7 @@ lengthGT4 =
 reverse ::
   List a
   -> List a
-reverse = foldRight (:.) Nil
+reverse = foldLeft (flip (:.)) Nil
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
