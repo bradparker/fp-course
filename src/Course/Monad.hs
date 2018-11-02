@@ -36,8 +36,7 @@ instance Monad ExactlyOne where
     (a -> ExactlyOne b)
     -> ExactlyOne a
     -> ExactlyOne b
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance ExactlyOne"
+  f =<< ExactlyOne a = f a
 
 -- | Binds a function on a List.
 --
@@ -48,8 +47,7 @@ instance Monad List where
     (a -> List b)
     -> List a
     -> List b
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance List"
+  (=<<) = flatMap
 
 -- | Binds a function on an Optional.
 --
@@ -60,8 +58,10 @@ instance Monad Optional where
     (a -> Optional b)
     -> Optional a
     -> Optional b
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance Optional"
+  (=<<) = bindOptional
+  -- remember?
+  -- _ =<< Empty = Empty
+  -- f =<< Full a = f a
 
 -- | Binds a function on the reader ((->) t).
 --
@@ -69,11 +69,10 @@ instance Monad Optional where
 -- 119
 instance Monad ((->) t) where
   (=<<) ::
-    (a -> ((->) t b))
-    -> ((->) t a)
-    -> ((->) t b)
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance ((->) t)"
+    (a -> (t -> b))
+    -> (t -> a)
+    -> (t -> b)
+  (=<<) atb ta t = atb (ta t) t
 
 -- | Witness that all things with (=<<) and (<$>) also have (<*>).
 --
@@ -111,8 +110,26 @@ instance Monad ((->) t) where
   f (a -> b)
   -> f a
   -> f b
-(<**>) =
-  error "todo: Course.Monad#(<**>)"
+-- Trying to get across that
+-- (<**>) = (<*>)
+
+-- using map and bind
+fab <**> fa = (<$> fa) =<< fab
+-- :t (<$>) :: (a -> b) -> f a -> f b
+-- :t (=<<) :: (a1 -> f b) -> f a1 -> f b
+-- :t (<$> fa) :: (a -> b) -> f b
+-- So if a1 :: a -> b, then
+-- :t (<$> fa) =<< fab :: (a -> b -> f b) -> f b
+
+-- using _only_ bind
+-- f :: a -> b
+-- pure . a -> b :: a -> f b
+-- pure . a -> b =<< fa :: f b
+-- so then we have a -> b -> fb
+-- and remembering (=<<) :: (a1 -> f b) -> f a1 -> f b
+-- so if a1 :: a -> b
+-- then a -> b -> f b =<< f (a -> b) :: f b
+-- fab <**> fa = (\f -> pure . f =<< fa) =<< fab
 
 infixl 4 <**>
 
@@ -133,8 +150,7 @@ join ::
   Monad f =>
   f (f a)
   -> f a
-join =
-  error "todo: Course.Monad#join"
+join = (id =<<)
 
 -- | Implement a flipped version of @(=<<)@, however, use only
 -- @join@ and @(<$>)@.
@@ -147,8 +163,10 @@ join =
   f a
   -> (a -> f b)
   -> f b
-(>>=) =
-  error "todo: Course.Monad#(>>=)"
+(>>=) fa = join . (<$> fa)
+
+-- more points
+-- fa >>= a2fb = join $ a2fb <$> fa
 
 infixl 1 >>=
 
@@ -163,8 +181,9 @@ infixl 1 >>=
   -> (a -> f b)
   -> a
   -> f c
-(<=<) =
-  error "todo: Course.Monad#(<=<)"
+b2fc <=< a2fb = \a -> b2fc =<< (a2fb a)
+-- or
+-- (<=<) b2fc a2fb a = b2fc =<< a2fb a
 
 infixr 1 <=<
 

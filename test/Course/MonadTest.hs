@@ -3,7 +3,7 @@
 
 module Course.MonadTest where
 
-import           Test.Tasty        (TestTree, testGroup)
+import           Test.Tasty        (TestTree, testGroup, defaultMain)
 import           Test.Tasty.HUnit  (testCase, (@?=))
 
 import           Course.Core
@@ -11,6 +11,9 @@ import           Course.ExactlyOne (ExactlyOne (..))
 import           Course.List       (List (..))
 import           Course.Monad      (join, (<**>), (=<<), (>>=), (<=<))
 import           Course.Optional   (Optional (..))
+
+t :: TestTree -> IO ()
+t = defaultMain
 
 test_Monad :: TestTree
 test_Monad =
