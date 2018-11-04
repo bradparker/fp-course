@@ -69,18 +69,14 @@ instance Functor Optional where
     (a -> b)
     -> Optional a
     -> Optional b
-  (<$>) _ Empty = Empty
-  (<$>) f (Full a) = Full (f a)
+  (<$>) = mapOptional
 
 -- | Maps a function on the reader ((->) t) functor.
 --
 -- >>> ((+1) <$> (*2)) 8
 -- 17
 instance Functor ((->) t) where
-  (<$>) ::
-    (a -> b)
-    -> ((->) t a)
-    -> ((->) t b)
+  (<$>) :: (a -> b) -> (->) t a -> (->) t b
   (<$>) = (.)
 
 -- | Anonymous map. Maps a constant value on a functor.

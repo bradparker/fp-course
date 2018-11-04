@@ -58,8 +58,7 @@ instance Monad Optional where
     (a -> Optional b)
     -> Optional a
     -> Optional b
-  (=<<) f (Full a) = f a
-  (=<<) _ Empty = Empty
+  (=<<) = bindOptional
 
 -- | Binds a function on the reader ((->) t).
 --
@@ -154,7 +153,7 @@ infixl 1 >>=
   -> (a -> f b)
   -> a
   -> f c
-(<=<) bFc aFb a = bFc =<< aFb a
+(<=<) f g a = f =<< g a
 
 infixr 1 <=<
 
