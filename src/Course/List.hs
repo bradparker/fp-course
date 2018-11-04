@@ -128,7 +128,7 @@ map ::
   (a -> b)
   -> List a
   -> List b
-map f = foldRight ((:.) . f) Nil
+map = flip foldRight Nil . ((:.) .)
 
 -- | Return elements satisfying the given predicate.
 --
@@ -196,7 +196,7 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap f = flatten . map f
+flatMap = (flatten .) . map
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
@@ -258,7 +258,7 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find f = headOr Empty . map Full . filter f
+find = ((headOr Empty . map Full) .) . filter
 
 -- | Determine if the length of the given list is greater than 4.
 --

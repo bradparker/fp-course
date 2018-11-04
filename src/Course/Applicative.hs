@@ -65,13 +65,8 @@ instance Applicative List where
     a
     -> List a
   pure = (:. Nil)
-  (<*>) ::
-    List (a -> b)
-    -> List a
-    -> List b
-  (<*>) _ Nil = Nil
-  (<*>) Nil _ = Nil
-  (<*>) (f :. fs) as = map f as ++ (fs <*> as)
+  (<*>) :: List (a -> b) -> List a -> List b
+  (<*>) fs as = foldRight ((++) . (<$> as)) Nil fs
 
 -- | Insert into an Optional.
 --
@@ -333,7 +328,7 @@ replicateA ::
   Int
   -> f a
   -> f (List a)
-replicateA n = sequence . replicate n
+replicateA = (sequence .) . replicate
 
 -- | Filter a list with a predicate that produces an effect.
 --
@@ -362,7 +357,7 @@ filtering ::
   -> f (List a)
 filtering f = (flatten <$>) . sequence . map (lift2 (<$>) match f)
   where
-    match val cond = if cond then val :. Nil else Nil
+    match a b = if b then a :. Nil else Nil
 
 -----------------------
 -- SUPPORT LIBRARIES --
