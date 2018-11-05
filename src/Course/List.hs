@@ -334,6 +334,11 @@ notReverse =
 
 ---- End of list exercises
 
+pushEnd :: List a -> a -> List a
+pushEnd Nil x = x :. Nil
+pushEnd (h :. t) x = h :. pushEnd t x
+
+
 largeList ::
   List Int
 largeList =

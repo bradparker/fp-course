@@ -316,9 +316,9 @@ sequence ::
   Applicative f =>
   List (f a)
   -> f (List a)
---sequence = (<*>) (foldRight id) 
---sequence list = id <*> list 
-sequence list = (foldRight id) <*> list
+sequence = foldLeft rewrapAppend (pure Nil)
+  where rewrapAppend acc elm = (pushEnd <$> acc) <*> elm
+
 
 -- | Replicate an effect a given number of times.
 --
