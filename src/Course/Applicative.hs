@@ -340,9 +340,9 @@ replicateA ::
   Applicative f =>
   Int
   -> f a
-  -> f (List a)
-replicateA =
-  error "todo: Course.Applicative#replicateA"
+  -> f (List a) 
+replicateA 0 _ = pure Nil
+replicateA n fa = ((:.) <$> fa) <*> replicateA (n - 1) fa
 
 -- | Filter a list with a predicate that produces an effect.
 --
