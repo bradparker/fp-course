@@ -83,6 +83,10 @@ headOr' ::
 headOr' x Nil = x
 headOr' _ (x:._) = x
 
+head :: List a -> Optional a
+head Nil = Empty
+head (a:._) = Full a
+
 -- | The product of the elements of a list.
 --
 -- >>> product Nil
