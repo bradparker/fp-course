@@ -356,6 +356,7 @@ filtering ::
   -> List a
   -> f (List a)
 filtering f = (flatten <$>) . sequence . map (lift2 (<$>) match f)
+--filtering f = (flatten <$>) . sequence . map (\a -> match a <$> f a)
   where
     match a b = if b then a :. Nil else Nil
 
