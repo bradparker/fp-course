@@ -85,8 +85,8 @@ printFile ::
   FilePath
   -> Chars
   -> IO ()
-printFile = (. putStrLn) . (*>) . putStrLn
--- printFile p c = putStrLn p *> putStrLn c
+printFile = (. putStrLn) . (*>) . (putStrLn . ("============ " ++))
+-- printFile p c = putStrLn ("============ " ++ p) *> putStrLn c
 
 -- Given a list of (file name and file contents), print each.
 -- Use @printFile@.
@@ -101,7 +101,7 @@ getFile ::
   FilePath
   -> IO (FilePath, Chars)
 getFile = lift2 (<$>) (,) readFile
--- getFile f = (,) f <$> readFile f
+-- getFile f = (f,) <$> readFile f
 
 -- Given a list of file names, return list of (file name and file contents).
 -- Use @getFile@.
@@ -122,7 +122,10 @@ run = (go =<<) . getFile
 -- /Tip:/ use @getArgs@ and @run@
 main ::
   IO ()
-main = run . headOr "" =<< getArgs
+main = printHintIfRequired . map run =<< getArgs
+  where
+    printHintIfRequired = headOr (putStrLn "Please provide and argument")
+--main = run . headOr "" =<< getArgs
 
 ----
 
