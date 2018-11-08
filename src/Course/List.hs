@@ -260,6 +260,12 @@ find ::
   -> Optional a
 find = ((headOr Empty . map Full) .) . filter
 
+find' ::
+  (a -> Bool)
+  -> List a
+  -> Optional a
+find' f as = foldRight (\a b -> if f a then Full a else b) Empty as
+
 -- | Determine if the length of the given list is greater than 4.
 --
 -- >>> lengthGT4 (1 :. 3 :. 5 :. Nil)
