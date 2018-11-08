@@ -80,9 +80,6 @@ the contents of c
 
 -}
 
--- Some helpers to play around with in ghci...
-testList :: List (FilePath, Chars)
-testList = ("path one", "contents one") :. ("path two", "contents two") :. Nil
 filePath :: FilePath
 filePath = "some path"
 

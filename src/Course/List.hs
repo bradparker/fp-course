@@ -118,8 +118,9 @@ product' (x:.xs) = x * product' xs
 --
 -- prop> \x -> foldLeft (-) (sum x) x == 0
 sum ::
-  List Int
-  -> Int
+  Num a =>
+  List a
+  -> a
 sum = foldRight (+) 0
 
 sum' ::

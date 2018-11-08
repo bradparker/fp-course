@@ -8,7 +8,7 @@ import           Data.List                (nub)
 import qualified Prelude                  as P ((++))
 
 import           Test.QuickCheck.Function (Fun (..))
-import           Test.Tasty               (TestTree, testGroup)
+import           Test.Tasty               (TestTree, testGroup, defaultMain)
 import           Test.Tasty.HUnit         (testCase, (@?=))
 import           Test.Tasty.QuickCheck    (testProperty)
 
@@ -23,6 +23,9 @@ import           Course.Optional          (Optional (..))
 import           Course.State             (State (..), distinct, eval, exec,
                                            findM, firstRepeat, get, isHappy,
                                            put, put, runState)
+
+t :: TestTree -> IO ()
+t = defaultMain
 
 test_State :: TestTree
 test_State =
