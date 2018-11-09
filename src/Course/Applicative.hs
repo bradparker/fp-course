@@ -369,8 +369,18 @@ filtering ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filtering =
-  error "todo: Course.Applicative#filtering"
+
+-- 1: map will return a List(f(List(a)))
+-- 2: sequence makes this f(List(List(a)))
+-- 3: flatten simplifies List(List(a)) to List(a)
+-- 4: flatten needs to be applied with fmap to unwarp/rewrap our context
+filtering fn as = flatten <$> sequence (map wrap as)
+  where
+    --       whenTrue: Is partially applied, waiting for a bool
+    --       fn a: Produces an f(Bool)
+    --       ∴ Unwrap our bool, and return either a 0 or 1 element list 
+    wrap elm=whenTrue elm <$> fn a
+    whenTrue a cond=if cond then a :. Nil else Nil
 
 -----------------------
 -- SUPPORT LIBRARIES --

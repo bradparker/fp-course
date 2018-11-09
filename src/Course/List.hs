@@ -149,8 +149,10 @@ filter ::
   (a -> Bool)
   -> List a
   -> List a
-filter _ Nil = Nil
-filter fn (h :. t) = if fn h then h :. filter fn t else filter fn t 
+-- filter _ Nil = Nil
+-- filter fn (h :. t) = if fn h then h :. filter fn t else filter fn t 
+filter fn = foldRight inclusion Nil
+  where inclusion elm acc=if fn elm then elm :. acc else acc
 
 -- | Append two lists to a new list.
 --
