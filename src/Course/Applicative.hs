@@ -379,7 +379,7 @@ filtering fn as = flatten <$> sequence (map wrap as)
     --       whenTrue: Is partially applied, waiting for a bool
     --       fn a: Produces an f(Bool)
     --       ∴ Unwrap our bool, and return either a 0 or 1 element list 
-    wrap elm=whenTrue elm <$> fn a
+    wrap elm=whenTrue elm <$> fn elm
     whenTrue a cond=if cond then a :. Nil else Nil
 
 -----------------------
