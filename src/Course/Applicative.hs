@@ -28,12 +28,8 @@ import qualified Prelude as P(fmap, return, (>>=))
 --   `∀u v w. pure (.) <*> u <*> v <*> w ≅ u <*> (v <*> w)`
 
 class Functor f => Applicative f where
-  pure ::
-    a -> f a
-  (<*>) ::
-    f (a -> b)
-    -> f a
-    -> f b
+  pure :: a -> f a
+  (<*>) :: f (a -> b) -> f a -> f b
 
 infixl 4 <*>
 
@@ -246,8 +242,7 @@ lift1 = (<$>)
 -- prop> \x y z a b c -> (x :. y :. z :. Nil) <* (a :. b :. c :. Nil) == (x :. x :. x :. y :. y :. y :. z :. z :. z :. Nil)
 --
 -- prop> \x y -> Full x <* Full y == Full x
-(<*) ::
-  Applicative f => f a -> f b -> f a
+(<*) :: Applicative f => f a -> f b -> f a
 (<*) fa fb = const <$> fa <*> fb
 
 -- | Sequences a list of structures to a structure of list.
@@ -309,38 +304,28 @@ replicateA n = sequence . replicate n
 --
 -- >>> filtering (const $ True :. True :.  Nil) (1 :. 2 :. 3 :. Nil)
 -- [[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3]]
---
+-- [True,True]
+-- [1,1] [2,2] [3,3]
+-- [True,False]
+-- [1,] [2,] [3,]
+-- [1,2,3],[1,2,],[1,,]
 filtering :: Applicative f => (a -> f Bool) -> List a -> f (List a)
-filtering = error "todo: Course.Applicative#filtering"
+filtering f as = (fst <$>) <$> (filter snd <$> sequence (f' <$> as))
+  where f' a = (,) a <$> f a
 
 -----------------------
 -- SUPPORT LIBRARIES --
 -----------------------
 
 instance Applicative IO where
-  pure =
-    P.return
-  f <*> a =
-    f P.>>= \f' -> P.fmap f' a
+  pure = P.return
+  f <*> a = f P.>>= \f' -> P.fmap f' a
 
-return ::
-  Applicative f =>
-  a
-  -> f a
-return =
-  pure
+return :: Applicative f => a -> f a 
+return = pure
 
-fail ::
-  Applicative f =>
-  Chars
-  -> f a
-fail =
-  error . hlist
+fail :: Applicative f => Chars -> f a
+fail = error . hlist
 
-(>>) ::
-  Applicative f =>
-  f a
-  -> f b
-  -> f b
-(>>) =
-  (*>)
+(>>) :: Applicative f => f a -> f b -> f b
+(>>) = (*>)
