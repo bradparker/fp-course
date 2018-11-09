@@ -380,7 +380,7 @@ filtering ::
   -> f (List a)
 filtering p =
   flip foldRight (pure Nil) $ \a fas ->
-    (bool <*> (a :.)) <$> fas <*> p a
+    (\b as -> bool as (a :. as) b) <$> p a <*> fas
 
 -----------------------
 -- SUPPORT LIBRARIES --
