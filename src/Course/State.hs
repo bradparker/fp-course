@@ -67,7 +67,7 @@ get = State $ join (,)
 put ::
   s
   -> State s ()
-put = State . const . (() ,)
+put = State . const . ((),)
 -- put s = State $ const ((), s)
 
 -- | Implement the `Functor` instance for `State s`.
@@ -163,7 +163,8 @@ firstRepeat ::
   Ord a =>
   List a
   -> Optional a
-firstRepeat as = eval (findM isDuplicate as) S.empty
+--firstRepeat as = eval (findM isDuplicate as) S.empty
+firstRepeat = flip eval S.empty . findM isDuplicate
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
@@ -175,7 +176,8 @@ distinct ::
   Ord a =>
   List a
   -> List a
-distinct as = eval (filtering ((not <$>) . isDuplicate) as) S.empty
+distinct = flip eval S.empty . filtering ((not <$>) . isDuplicate)
+--distinct as = eval (filtering ((not <$>) . isDuplicate) as) S.empty
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
@@ -198,8 +200,20 @@ distinct as = eval (filtering ((not <$>) . isDuplicate) as) S.empty
 --
 -- >>> isHappy 44
 -- True
+square ::
+  Num a =>
+  a
+  -> a
+square = join (*)
+
+toDigits :: Integer -> List Integer
+toDigits n
+  | n <= 0 = Nil
+  | otherwise = toDigits (n `div` 10) ++ ((n `mod` 10) :. Nil)
+
 isHappy ::
   Integer
   -> Bool
-isHappy =
-  error "todo: Course.State#isHappy"
+isHappy = contains 1 . firstRepeat . produce sumOfSquaredDigits
+  where
+    sumOfSquaredDigits = sum . (square <$>) . toDigits

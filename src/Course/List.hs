@@ -101,8 +101,9 @@ product = foldRight (*) 1
 --
 -- prop> \x -> foldLeft (-) (sum x) x == 0
 sum ::
-  List Int
-  -> Int
+  Num a =>
+  List a
+  -> a
 sum = foldRight (+) 0
 
 -- | Return the length of the list.
