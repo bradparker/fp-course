@@ -104,7 +104,7 @@ instance Monad ((->) t) where
   f (a -> b)
   -> f a
   -> f b
-(<**>) = (<*>)
+(<**>) fab fa = (<$> fa) =<< fab
 
 infixl 4 <**>
 
