@@ -67,6 +67,7 @@ instance Applicative List where
   pure = (:. Nil)
   (<*>) :: List (a -> b) -> List a -> List b
   (<*>) fs as = foldRight ((++) . (<$> as)) Nil fs
+  -- (<*>) fs as = foldRight (\f bs -> (f <$> as) ++ bs) Nil fs
 
 -- | Insert into an Optional.
 --
