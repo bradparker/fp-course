@@ -282,7 +282,7 @@ find' f as = foldRight (\a b -> if f a then Full a else b) Empty as
 lengthGT4 ::
   List a
   -> Bool
-lengthGT4 = (== 4) . length . take 4
+lengthGT4 = (> 4) . length . take 5
 
 -- | Reverse a list.
 --
