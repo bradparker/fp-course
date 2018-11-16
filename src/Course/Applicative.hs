@@ -267,8 +267,8 @@ lift1 f a = f <$> a
   f a
   -> f b
   -> f b
-(*>) =
-  error "todo: Course.Applicative#(*>)"
+(*>) = lift2 (flip const)
+  
 
 -- | Apply, discarding the value of the second argument.
 -- Pronounced, left apply.
@@ -293,8 +293,7 @@ lift1 f a = f <$> a
   f b
   -> f a
   -> f b
-(<*) =
-  error "todo: Course.Applicative#(<*)"
+(<*) = lift2 const
 
 -- | Sequences a list of structures to a structure of list.
 --
@@ -316,8 +315,7 @@ sequence ::
   Applicative f =>
   List (f a)
   -> f (List a)
-sequence =
-  error "todo: Course.Applicative#sequence"
+sequence = foldRight (lift2 (:.)) (pure Nil) 
 
 -- | Replicate an effect a given number of times.
 --
@@ -342,8 +340,7 @@ replicateA ::
   Int
   -> f a
   -> f (List a)
-replicateA =
-  error "todo: Course.Applicative#replicateA"
+replicateA n = sequence . replicate n 
 
 -- | Filter a list with a predicate that produces an effect.
 --
@@ -365,13 +362,14 @@ replicateA =
 -- >>> filtering (const $ True :. True :.  Nil) (1 :. 2 :. 3 :. Nil)
 -- [[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3]]
 --
+-- foldRight (\x acc -> (\y -> if y then pure x :. acc else acc) <$> p x) (pure Nil)
 filtering ::
   Applicative f =>
   (a -> f Bool)
   -> List a
   -> f (List a)
-filtering =
-  error "todo: Course.Applicative#filtering"
+filtering p = foldRight work (pure Nil)
+  where work x fxs = (\y xs -> if y then x :. xs else xs) <$> p x <*> fxs
 
 -----------------------
 -- SUPPORT LIBRARIES --
