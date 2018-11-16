@@ -243,14 +243,7 @@ seqOptional ::
   -> Optional (List a)
 seqOptional =
   flip foldRight (Full Nil) $ \oa oas ->
-    case oa of
-      Empty -> Empty
-      Full a ->
-        case oas of
-          Empty -> Empty
-          Full as -> Full (a :. as)
-  -- This hangs
-  -- Full . listOptional id
+    (:.) `mapOptional` oa `applyOptional` oas
 
 -- | Find the first element in the list matching the predicate.
 --
