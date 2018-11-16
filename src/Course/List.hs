@@ -282,11 +282,12 @@ find predicate =
 lengthGT4 ::
   List a
   -> Bool
-lengthGT4 list =
-  let 
-    positions = foldRight (\a (p, list) -> (p+1, a):.list ) (0, Nil) list
-  in
-    foldRight (\(x, _) s -> x >= 5) False positions
+lengthGT4 Nil = False
+lengthGT4  (_ :. Nil) = False 
+lengthGT4  (_ :. _ :. Nil) = False 
+lengthGT4  (_ :. _ :. _ :. Nil) = False 
+lengthGT4  (_ :. _ :. _ :. _ :. Nil) = False
+lengthGT4  (_ :. _ :. _ :. _ :. _) = True
   
 
 -- | Reverse a list.
