@@ -105,12 +105,11 @@ instance Applicative (State s) where
     State s (a -> b)
     -> State s a
     -> State s b 
-  -- why not combine the states the other way?, i.e. getSFromStA2b (getSFromStA s)
   (<*>) sf sa = State $ go . runState sf
     where
-      go (f, s) = applyFirst f (runSa s)
       applyFirst f (a,c) = (f a, c)
       runSa = runState sa
+      go (f, s) = applyFirst f (runSa s)
 
   -- a little more verbose...
   -- (<*>) stsa2b stsa = State (\s -> (getA2B s (getA s), getSFromStA (getSFromStA2B s)))

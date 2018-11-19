@@ -5,7 +5,7 @@ module Course.StateTTest where
 
 import qualified Prelude               as P (String, (++))
 
-import           Test.Tasty            (TestTree, testGroup)
+import           Test.Tasty            (TestTree, testGroup, defaultMain)
 import           Test.Tasty.HUnit      (testCase, (@?=))
 import           Test.Tasty.QuickCheck (testProperty)
 
@@ -23,6 +23,9 @@ import           Course.StateT         (Logger (..), OptionalT (..),
                                         distinctG, getT, log1, putT,
                                         runOptionalT, runState', state',
                                         execT, exec', evalT, eval')
+
+t :: TestTree -> IO ()
+t = defaultMain
 
 test_StateT :: TestTree
 test_StateT =
