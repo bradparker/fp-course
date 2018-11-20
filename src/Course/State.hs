@@ -38,8 +38,8 @@ exec ::
   State s a
   -> s
   -> s
-exec =
-  error "todo: Course.State#exec"
+exec (State current) seed = snd (current seed)
+  
 
 -- | Run the `State` seeded with `s` and retrieve the resulting value.
 --
@@ -48,8 +48,7 @@ eval ::
   State s a
   -> s
   -> a
-eval =
-  error "todo: Course.State#eval"
+eval (State current) seed = fst (current seed)
 
 -- | A `State` where the state also distributes into the produced value.
 --
@@ -57,8 +56,7 @@ eval =
 -- (0,0)
 get ::
   State s s
-get =
-  error "todo: Course.State#get"
+get = State (\x -> (x,x))
 
 -- | A `State` where the resulting state is seeded with the given value.
 --
@@ -67,8 +65,7 @@ get =
 put ::
   s
   -> State s ()
-put =
-  error "todo: Course.State#put"
+put x = State (const ((),x))
 
 -- | Implement the `Functor` instance for `State s`.
 --
@@ -79,8 +76,7 @@ instance Functor (State s) where
     (a -> b)
     -> State s a
     -> State s b
-  (<$>) =
-    error "todo: Course.State#(<$>)"
+  f <$> g = State (\s -> (f (eval g s), exec g s))
 
 -- | Implement the `Applicative` instance for `State s`.
 --
@@ -97,14 +93,19 @@ instance Applicative (State s) where
   pure ::
     a
     -> State s a
-  pure =
-    error "todo: Course.State pure#instance (State s)"
+  pure x = State (\s -> (x, s))
+  
   (<*>) ::
     State s (a -> b)
     -> State s a
     -> State s b
-  (<*>) =
-    error "todo: Course.State (<*>)#instance (State s)"
+  f <*> g = 
+    State (\s -> 
+      let (aToB, middleState) = runState f s
+          (a, finalState) = runState g middleState   
+      in  (aToB a, finalState))
+
+-- (State sToAtoB) <*> (State sToA) = State (\s -> (fst (sToAtoB s (fst (sToA s))), snd (sToA s)))
 
 -- | Implement the `Bind` instance for `State s`.
 --
@@ -118,8 +119,7 @@ instance Monad (State s) where
     (a -> State s b)
     -> State s a
     -> State s b
-  (=<<) =
-    error "todo: Course.State (=<<)#instance (State s)"
+  _f =<< _g = error "foo"
 
 -- | Find the first element in a `List` that satisfies a given predicate.
 -- It is possible that no element is found, hence an `Optional` result.
