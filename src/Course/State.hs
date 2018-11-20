@@ -101,9 +101,9 @@ instance Applicative (State s) where
     -> State s b
   f <*> g = 
     State (\s -> 
-      let (aToB, middleState) = runState f s
-          (a, finalState) = runState g middleState   
-      in  (aToB a, finalState))
+      let (aToB, s') = runState f s
+          (a, s'') = runState g s'   
+      in  (aToB a, s''))
 
 -- (State sToAtoB) <*> (State sToA) = State (\s -> (fst (sToAtoB s (fst (sToA s))), snd (sToA s)))
 
@@ -119,7 +119,10 @@ instance Monad (State s) where
     (a -> State s b)
     -> State s a
     -> State s b
-  _f =<< _g = error "foo"
+  f =<< (State g) = 
+    State (\s ->
+      let (a, s') = g s
+      in runState (f a) s')
 
 -- | Find the first element in a `List` that satisfies a given predicate.
 -- It is possible that no element is found, hence an `Optional` result.
@@ -140,8 +143,10 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
-findM =
-  error "todo: Course.State#findM"
+findM _ Nil = pure Empty 
+findM p (x:.xs) = do
+  b <- p x
+  if b then pure (Full x) else findM p xs
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
