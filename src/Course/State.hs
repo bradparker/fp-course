@@ -201,13 +201,11 @@ distinct l =
 isHappy ::
   Integer
   -> Bool
-isHappy x
-  | x < 1 = False
-  | otherwise = True
+isHappy = (== Full 1) . firstRepeat . produce sumOfSquaredDigits
 
-digitsOf :: Integral x => x -> List x
+digitsOf :: Integer -> List Integer
 digitsOf 0 = Nil
 digitsOf x = digitsOf (x `div` 10) ++ (x `mod` 10) :. Nil
 
-sumOfSquaredDigits :: Integral a => a -> a
-sumOfSquaredDigits n = foldRight (\y acc -> acc + y * y) 0 $ digitsOf n
+sumOfSquaredDigits :: Integer -> Integer
+sumOfSquaredDigits = foldRight (\x y -> y + x * x) 0 . digitsOf
