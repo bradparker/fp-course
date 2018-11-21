@@ -201,5 +201,13 @@ distinct l =
 isHappy ::
   Integer
   -> Bool
-isHappy =
-  error "todo: Course.State#isHappy"
+isHappy x
+  | x < 1 = False
+  | otherwise = True
+
+digitsOf :: Integral x => x -> List x
+digitsOf 0 = Nil
+digitsOf x = digitsOf (x `div` 10) ++ (x `mod` 10) :. Nil
+
+sumOfSquaredDigits :: Integral a => a -> a
+sumOfSquaredDigits n = foldRight (\y acc -> acc + y * y) 0 $ digitsOf n
