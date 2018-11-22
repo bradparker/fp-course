@@ -2,8 +2,15 @@
 pureAdd :: Int -> Int -> Int
 pureAdd x y = x + y
 
-impureAdd :: Int -> Int -> Int
-impureAdd x y = undefined
+impureAdd :: Int -> Int -> IO Int
+impureAdd x y = do
+  putStrLn "I'm going to add now" 
+  return (x + y)
 
 main :: IO ()
-main = putStrLn $ "2 + 3 = " ++ show (pureAdd 2 3)
+main = do
+  result <- do
+    putStrLn "I'm going to add now" 
+    return (2 + 3)
+  putStrLn $ "2 + 3 = " ++ show (result)
+  return ()
