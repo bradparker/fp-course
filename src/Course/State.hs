@@ -75,8 +75,8 @@ instance Functor (State s) where
     (a -> b)
     -> State s a
     -> State s b
-  (<$>) =
-    error "todo: Course.State#(<$>)"
+  (<$>) fn st = State (\s->doMap (runState st s))
+    where doMap (a, s) = (fn a, s)
 
 -- | Implement the `Applicative` instance for `State s`.
 --
@@ -93,16 +93,17 @@ instance Applicative (State s) where
   pure ::
     a
     -> State s a
-  pure =
-    error "todo: Course.State pure#instance (State s)"
+  pure a = State (\s -> (a, s))
   (<*>) ::
     State s (a -> b)
     -> State s a
     -> State s b 
-  (<*>) =
-    error "todo: Course.State (<*>)#instance (State s)"
+  (<*>) st_fn st_a = State (\s-> let (fn, s_fn) = runState st_fn s
+                                     (a, s_sa) = runState st_a s_fn
+                                 in (fn a, s_sa))
 
--- | Implement the `Bind` instance for `State s`.
+
+  -- | Implement the `Bind` instance for `State s`.
 --
 -- >>> runState ((const $ put 2) =<< put 1) 0
 -- ((),2)
@@ -114,8 +115,8 @@ instance Monad (State s) where
     (a -> State s b)
     -> State s a
     -> State s b
-  (=<<) =
-    error "todo: Course.State (=<<)#instance (State s)"
+  (=<<) fn st_a = State (\s-> let (a, s_a) = runState st_a s
+                              in runState (fn a) s_a)
 
 -- | Find the first element in a `List` that satisfies a given predicate.
 -- It is possible that no element is found, hence an `Optional` result.
@@ -136,8 +137,10 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
-findM =
-  error "todo: Course.State#findM"
+--findM fn lst = find () lst
+--findM fn lst = find (\a->) lst
+
+--findM fn lst = (flip find lst) <$> fn
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
