@@ -74,11 +74,7 @@ bindOptional f (Full a) = f a
 --
 -- >>> optional (+1) 0 Empty
 -- 0
-optional ::
-  (a -> b)
-  -> b
-  -> Optional a
-  -> b
+optional :: (a -> b) -> b -> Optional a -> b
 optional f d a = mapOptional f a ?? d
   
 

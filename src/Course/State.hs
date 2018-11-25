@@ -13,6 +13,7 @@ import Course.List
 import Course.Functor
 import Course.Applicative
 import Course.Monad
+import Data.Char (digitToInt)
 import qualified Data.Set as S
 
 -- $setup
@@ -129,11 +130,6 @@ findM g = foldRight accumulate (pure Empty)
 -- prop> \xs -> case firstRepeat xs of Empty -> True; Full x -> let (l, (rx :. rs)) = span (/= x) xs in let (l2, r2) = span (/= x) rs in let l3 = hlist (l ++ (rx :. Nil) ++ l2) in nub l3 == l3
 firstRepeat :: Ord a => List a -> Optional a
 firstRepeat as = eval (findM isRepeat as) S.empty
-    where isRepeat a = do
-            s <- get
-            let yes = S.member a s
-            put (S.insert a s)
-            pure yes
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
@@ -142,7 +138,15 @@ firstRepeat as = eval (findM isRepeat as) S.empty
 --
 -- prop> \xs -> distinct xs == distinct (flatMap (\x -> x :. x :. Nil) xs)
 distinct :: Ord a => List a -> List a
-distinct = error "todo: Course.State#distinct"
+distinct as = eval (filtering predicate as) S.empty
+    where predicate a = not <$> isRepeat a
+
+isRepeat :: Ord a => a -> State (S.Set a) Bool
+isRepeat a = do
+    s <- get
+    let repeated = S.member a s
+    put (S.insert a s)
+    pure repeated
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
@@ -166,4 +170,8 @@ distinct = error "todo: Course.State#distinct"
 -- >>> isHappy 44
 -- True
 isHappy :: Integer -> Bool
-isHappy = error "todo: Course.State#isHappy"
+isHappy x = contains 1 $ firstRepeat $ produce (sumSquares . toDigits) x
+    where
+        sumInteger = foldRight (+) 0
+        sumSquares ys = sumInteger ((\y -> y * y) <$> ys)
+        toDigits y = toInteger . digitToInt <$> listh (show y)
