@@ -129,7 +129,7 @@ findM g = foldRight accumulate (pure Empty)
 -- prop> \xs -> case firstRepeat xs of Empty -> let xs' = hlist xs in nub xs' == xs'; Full x -> length (filter (== x) xs) > 1
 -- prop> \xs -> case firstRepeat xs of Empty -> True; Full x -> let (l, (rx :. rs)) = span (/= x) xs in let (l2, r2) = span (/= x) rs in let l3 = hlist (l ++ (rx :. Nil) ++ l2) in nub l3 == l3
 firstRepeat :: Ord a => List a -> Optional a
-firstRepeat as = eval (findM isRepeat as) S.empty
+firstRepeat as = eval (findM (isMatch S.member) as) S.empty
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
@@ -138,15 +138,13 @@ firstRepeat as = eval (findM isRepeat as) S.empty
 --
 -- prop> \xs -> distinct xs == distinct (flatMap (\x -> x :. x :. Nil) xs)
 distinct :: Ord a => List a -> List a
-distinct as = eval (filtering predicate as) S.empty
-    where predicate a = not <$> isRepeat a
+distinct as = eval (filtering (isMatch S.notMember) as) S.empty
 
-isRepeat :: Ord a => a -> State (S.Set a) Bool
-isRepeat a = do
+isMatch :: Ord a => (a -> S.Set a -> Bool) -> a -> State (S.Set a) Bool
+isMatch f a = do
     s <- get
-    let repeated = S.member a s
     put (S.insert a s)
-    pure repeated
+    pure (f a s)
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
