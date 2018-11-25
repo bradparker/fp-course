@@ -2,6 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE TupleSections #-}
 
 module Course.State where
 
@@ -58,7 +59,6 @@ put s = State (const ((), s))
 -- (10,6)
 instance Functor (State s) where
   (<$>) :: (a -> b) -> State s a -> State s b
-  -- f <$> sa = State (\s -> (f (eval sa s), exec sa s))
   f <$> sa = State (\s -> 
     let (a, s') = runState sa s
     in (f a, s'))
@@ -76,9 +76,9 @@ instance Functor (State s) where
 -- (10,["apple","banana"])
 instance Applicative (State s) where
   pure :: a -> State s a
-  pure a = State (\s -> (a, s))
+  pure a = State (a,)
+  
   (<*>) :: State s (a -> b) -> State s a -> State s b 
-  -- sf <*> sa = State (\s -> (eval sf s (eval sa s), (exec sa . exec sf) s))
   sf <*> sa = State (\s -> 
     let 
       (f, s') = runState sf s
@@ -107,20 +107,18 @@ instance Monad (State s) where
 --   find ::  (a ->   Bool) -> List a ->    Optional a
 --   findM :: (a -> f Bool) -> List a -> f (Optional a)
 --
--- >>> let p x = (\s -> (const $ pure (x == 'c')) =<< put (1+s)) =<< get in runState (findM p $ listh ['a'..'h']) 0
+-- >>> let     
+--        p x = (\s -> (const $ pure (x == 'c')) =<< put (1+s)) 
+--                  =<< get 
+--     in 
+--        runState (findM p $ listh ['a'..'h']) 0
 -- (Full 'c',3)
 --
 -- >>> let p x = (\s -> (const $ pure (x == 'i')) =<< put (1+s)) =<< get in runState (findM p $ listh ['a'..'h']) 0
 -- (Empty,8)
 findM :: Monad f => (a -> f Bool) -> List a -> f (Optional a)
--- findM f = foldRight (\a foa -> replace a <$> f a <*> foa) (pure Empty)
---     where replace a found oa = if found then Full a else oa
-findM f = foldRight reduce (pure Empty)
-  where reduce a foa = do
-    found <- f a
-    if found then pure (Full a) 
-    else foa
-
+findM g = foldRight accumulate (pure Empty)
+    where accumulate a foa = (\b -> if b then pure (Full a) else foa) =<< g a
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
@@ -129,12 +127,13 @@ findM f = foldRight reduce (pure Empty)
 --
 -- prop> \xs -> case firstRepeat xs of Empty -> let xs' = hlist xs in nub xs' == xs'; Full x -> length (filter (== x) xs) > 1
 -- prop> \xs -> case firstRepeat xs of Empty -> True; Full x -> let (l, (rx :. rs)) = span (/= x) xs in let (l2, r2) = span (/= x) rs in let l3 = hlist (l ++ (rx :. Nil) ++ l2) in nub l3 == l3
-firstRepeat ::
-  Ord a =>
-  List a
-  -> Optional a
-firstRepeat =
-  error "todo: Course.State#firstRepeat"
+firstRepeat :: Ord a => List a -> Optional a
+firstRepeat as = eval (findM isRepeat as) S.empty
+    where isRepeat a = do
+            s <- get
+            let yes = S.member a s
+            put (S.insert a s)
+            pure yes
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
@@ -142,12 +141,8 @@ firstRepeat =
 -- prop> \xs -> firstRepeat (distinct xs) == Empty
 --
 -- prop> \xs -> distinct xs == distinct (flatMap (\x -> x :. x :. Nil) xs)
-distinct ::
-  Ord a =>
-  List a
-  -> List a
-distinct =
-  error "todo: Course.State#distinct"
+distinct :: Ord a => List a -> List a
+distinct = error "todo: Course.State#distinct"
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
@@ -170,8 +165,5 @@ distinct =
 --
 -- >>> isHappy 44
 -- True
-isHappy ::
-  Integer
-  -> Bool
-isHappy =
-  error "todo: Course.State#isHappy"
+isHappy :: Integer -> Bool
+isHappy = error "todo: Course.State#isHappy"
