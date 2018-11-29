@@ -3,10 +3,9 @@
 
 module Course.ListZipperTest where
 
-
 import qualified Prelude                  as P (fromIntegral, (<$>))
 import           Test.QuickCheck.Function (Fun (..))
-import           Test.Tasty               (TestTree, testGroup)
+import           Test.Tasty               (TestTree, testGroup, defaultMain)
 import           Test.Tasty.HUnit         (testCase, (@?=))
 import           Test.Tasty.QuickCheck    (testProperty)
 
