@@ -288,8 +288,7 @@ lift1 = (<*>) . lift0
   f b
   -> f a
   -> f b
-(<*) =
-  error "todo: Course.Applicative#(<*)"
+(<*) fb fa = (pure const) <*> fb <*> fa
 
 -- | Sequences a list of structures to a structure of list.
 --
@@ -311,8 +310,8 @@ sequence ::
   Applicative f =>
   List (f a)
   -> f (List a)
-sequence =
-  error "todo: Course.Applicative#sequence"
+sequence Nil = pure Nil
+sequence (x:.xs) = ((:.) <$> x) <*> sequence xs
 
 -- | Replicate an effect a given number of times.
 --
