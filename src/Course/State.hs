@@ -13,6 +13,7 @@ import Course.Functor
 import Course.Applicative
 import Course.Monad
 import qualified Data.Set as S
+import qualified Data.Char as C
 
 -- $setup
 -- >>> import Test.QuickCheck.Function
@@ -137,10 +138,8 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
---findM fn lst = find () lst
---findM fn lst = find (\a->) lst
-
---findM fn lst = (flip find lst) <$> fn
+findM fn = foldRight f (pure Empty)
+  where f a foa = bool foa (pure (Full a)) =<< fn a
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
@@ -153,8 +152,8 @@ firstRepeat ::
   Ord a =>
   List a
   -> Optional a
-firstRepeat =
-  error "todo: Course.State#firstRepeat"
+firstRepeat as = eval (findM f as) S.empty
+  where f a = State (\s->(S.member a s, S.insert a s))
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
@@ -166,8 +165,8 @@ distinct ::
   Ord a =>
   List a
   -> List a
-distinct =
-  error "todo: Course.State#distinct"
+distinct lst = eval (filtering f lst) S.empty
+  where f a = State (\s->(S.notMember a s, S.insert a s))
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
@@ -190,8 +189,11 @@ distinct =
 --
 -- >>> isHappy 44
 -- True
-isHappy ::
+isHappy :: 
   Integer
   -> Bool
-isHappy =
-  error "todo: Course.State#isHappy"
+isHappy n = contains 1 (firstRepeat (produce f n))
+  where f x = sumInteger $ sq <$> listh (show x) -- Take an n, then sum the square of its digits
+        sq c = let x = toInteger (C.digitToInt c)
+               in x*x;
+        sumInteger = foldRight (+) 0
