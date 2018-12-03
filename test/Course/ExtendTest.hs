@@ -4,7 +4,7 @@
 module Course.ExtendTest where
 
 
-import           Test.Tasty        (TestTree, testGroup)
+import           Test.Tasty        (TestTree, testGroup, defaultMain)
 import           Test.Tasty.HUnit  (testCase, (@?=))
 
 import           Course.Core
@@ -14,6 +14,9 @@ import           Course.List       (List (..), length, listh, reverse)
 import           Course.Optional   (Optional (..))
 
 import           Course.Extend     (cojoin, (<<=))
+
+t :: TestTree -> IO ()
+t = defaultMain
 
 test_Extend :: TestTree
 test_Extend =
