@@ -4,12 +4,15 @@
 module Course.ComonadTest where
 
 
-import           Test.Tasty        (TestTree, testGroup)
+import           Test.Tasty        (TestTree, testGroup, defaultMain)
 import           Test.Tasty.HUnit  (testCase, (@?=))
 
 import           Course.Comonad    (copure, (<$$>))
 import           Course.Core
 import           Course.ExactlyOne (ExactlyOne (..))
+
+t :: TestTree -> IO ()
+t = defaultMain
 
 test_Comonad :: TestTree
 test_Comonad =
