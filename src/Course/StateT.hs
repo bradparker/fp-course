@@ -274,8 +274,7 @@ instance Monad f => Applicative (OptionalT f) where
     -> OptionalT f b
   (<*>) tfoab tfoa = OptionalT $ run =<< runOptionalT tfoab
     where
-      run Empty = pure Empty
-      run (Full f) = f <$$> runOptionalT tfoa
+      run = onFull (<$$> runOptionalT tfoa)
 
 -- | Implement the `Monad` instance for `OptionalT f` given a Monad f.
 --
@@ -288,8 +287,7 @@ instance Monad f => Monad (OptionalT f) where
     -> OptionalT f b
   (=<<) atfob tfoa = OptionalT $ run =<< runOptionalT tfoa
     where
-      run Empty = pure Empty
-      run (Full a) = runOptionalT (atfob a)
+      run = onFull $ runOptionalT . atfob
 
 -- | A `Logger` is a pair of a list of log values (`[l]`) and an arbitrary value (`a`).
 data Logger l a =
