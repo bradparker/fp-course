@@ -223,8 +223,7 @@ data OptionalT f a =
 -- >>> runOptionalT $ (+1) <$> OptionalT (Full 1 :. Empty :. Nil)
 -- [Full 2,Empty]
 instance Functor f => Functor (OptionalT f) where
-  (<$>) =
-    error "todo: Course.StateT (<$>)#instance (OptionalT f)"
+  (<$>) fn o = OptionalT $ (fn <$>) <$> runOptionalT o
 
 -- | Implement the `Applicative` instance for `OptionalT f` given a Monad f.
 --
@@ -251,10 +250,25 @@ instance Functor f => Functor (OptionalT f) where
 -- >>> runOptionalT $ OptionalT (Full (+1) :. Full (+2) :. Nil) <*> OptionalT (Full 1 :. Empty :. Nil)
 -- [Full 2,Empty,Full 3,Empty]
 instance Monad f => Applicative (OptionalT f) where
-  pure =
-    error "todo: Course.StateT pure#instance (OptionalT f)"
-  (<*>) =
-    error "todo: Course.StateT (<*>)#instance (OptionalT f)"
+  pure a = OptionalT $ pure (Full a)
+
+ -- onFull :: Applicative f => (t -> f (Optional a)) -> Optional t -> f (Optional a)
+
+  -- (<*>) :: OptionalT f (a -> b) -> OptionalT f a -> OptionalT f b
+  (<*>) ot_fn ot_a = let f_fn = runOptionalT ot_fn
+                         f_a = runOptionalT ot_a
+                         z fn = ((<$>).(<$>)) fn f_a
+                         x ofn = onFull z ofn
+                     in OptionalT $ x =<< f_fn
+                     --    withOptions o_fn o_a = o_fn <*> o_a
+                     --in (withOptions <$> f_fn) <*> f_a
+                      
+
+
+  -- (<*>) ffn o = let withOptionalA x = withA =<< x
+  --                   withA a = withFn a <$> ffn
+  --                   withFn a fn = fn a
+  --               in OptionalT (withOptionalA =<< (runOptionalT o))
 
 -- | Implement the `Monad` instance for `OptionalT f` given a Monad f.
 --
