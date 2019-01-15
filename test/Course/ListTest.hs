@@ -8,7 +8,7 @@ import qualified Prelude               as P (length)
 import           Test.QuickCheck       (forAllShrink)
 import           Test.Tasty            (TestTree, testGroup, defaultMain)
 import           Test.Tasty.HUnit      (testCase, (@?=))
-import           Test.Tasty.QuickCheck (testProperty)
+import           Test.Tasty.QuickCheck (testProperty, Gen)
 
 import           Course.Core
 import           Course.Gens           (forAllLists, genIntegerAndList, genList,
@@ -69,7 +69,7 @@ sumTest =
     testCase "sum 1..3" $ sum (1 :. 2 :. 3 :. Nil) @?= 6
   , testCase "sum 1..4" $ sum (1 :. 2 :. 3 :. 4 :. Nil) @?= 10
   , testProperty "subtracting each element in a list from its sum is always 0" $
-      forAllShrink genList shrinkList (\x -> foldLeft (-) (sum x) x == 0)
+      forAllShrink (genList :: Gen (List Int)) shrinkList (\x -> foldLeft (-) (sum x) x == 0)
   ]
 
 lengthTest :: TestTree
