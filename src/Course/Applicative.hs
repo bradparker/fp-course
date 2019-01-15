@@ -49,7 +49,7 @@ instance Applicative ExactlyOne where
     -> ExactlyOne a
   pure =
     error "todo: Course.Applicative pure#instance ExactlyOne"
-  (<*>) :: 
+  (<*>) ::
     ExactlyOne (a -> b)
     -> ExactlyOne a
     -> ExactlyOne b
@@ -330,6 +330,8 @@ sequence =
   error "todo: Course.Applicative#sequence"
 
 -- | Replicate an effect a given number of times.
+--
+-- /Tip:/ Use `Course.List#replicate`.
 --
 -- >>> replicateA 4 (ExactlyOne "hi")
 -- ExactlyOne ["hi","hi","hi","hi"]
