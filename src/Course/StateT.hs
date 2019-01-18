@@ -252,31 +252,25 @@ instance Functor f => Functor (OptionalT f) where
 instance Monad f => Applicative (OptionalT f) where
   pure a = OptionalT $ pure (Full a)
 
- -- onFull :: Applicative f => (t -> f (Optional a)) -> Optional t -> f (Optional a)
-
-  -- (<*>) :: OptionalT f (a -> b) -> OptionalT f a -> OptionalT f b
   (<*>) ot_fn ot_a = let f_fn = runOptionalT ot_fn
                          f_a = runOptionalT ot_a
-                         z fn = ((<$>).(<$>)) fn f_a
-                         x ofn = onFull z ofn
-                     in OptionalT $ x =<< f_fn
-                     --    withOptions o_fn o_a = o_fn <*> o_a
-                     --in (withOptions <$> f_fn) <*> f_a
-                      
-
-
-  -- (<*>) ffn o = let withOptionalA x = withA =<< x
-  --                   withA a = withFn a <$> ffn
-  --                   withFn a fn = fn a
-  --               in OptionalT (withOptionalA =<< (runOptionalT o))
+                         mapA fn = ((<$>).(<$>)) fn f_a
+                         make_fob ofn = onFull mapA ofn
+                     in OptionalT $ make_fob =<< f_fn
 
 -- | Implement the `Monad` instance for `OptionalT f` given a Monad f.
 --
 -- >>> runOptionalT $ (\a -> OptionalT (Full (a+1) :. Full (a+2) :. Nil)) =<< OptionalT (Full 1 :. Empty :. Nil)
 -- [Full 2,Full 3,Empty]
 instance Monad f => Monad (OptionalT f) where
-  (=<<) =
-    error "todo: Course.StateT (=<<)#instance (OptionalT f)"
+  (=<<) fn ot_a = let f_oa = runOptionalT ot_a
+                      rewrap a = runOptionalT $ fn a
+                      make_fob oa =
+                        case oa of
+                          Empty -> pure Empty
+                          Full a -> rewrap a
+                      f_ob = make_fob =<< f_oa
+                  in OptionalT f_ob
 
 -- | A `Logger` is a pair of a list of log values (`[l]`) and an arbitrary value (`a`).
 data Logger l a =
