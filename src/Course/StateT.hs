@@ -264,11 +264,11 @@ instance Monad f => Applicative (OptionalT f) where
 -- [Full 2,Full 3,Empty]
 instance Monad f => Monad (OptionalT f) where
   (=<<) fn ot_a = let f_oa = runOptionalT ot_a
-                      rewrap a = runOptionalT $ fn a
+                      map_and_unwrap a = runOptionalT $ fn a
                       make_fob oa =
                         case oa of
                           Empty -> pure Empty
-                          Full a -> rewrap a
+                          Full a -> map_and_unwrap a
                       f_ob = make_fob =<< f_oa
                   in OptionalT f_ob
 
@@ -282,8 +282,7 @@ data Logger l a =
 -- >>> (+3) <$> Logger (listh [1,2]) 3
 -- Logger [1,2] 6
 instance Functor (Logger l) where
-  (<$>) =
-    error "todo: Course.StateT (<$>)#instance (Logger l)"
+  (<$>) fn (Logger l a) = Logger l (fn a)
 
 -- | Implement the `Applicative` instance for `Logger`.
 --
@@ -293,10 +292,8 @@ instance Functor (Logger l) where
 -- >>> Logger (listh [1,2]) (+7) <*> Logger (listh [3,4]) 3
 -- Logger [1,2,3,4] 10
 instance Applicative (Logger l) where
-  pure =
-    error "todo: Course.StateT pure#instance (Logger l)"
-  (<*>) =
-    error "todo: Course.StateT (<*>)#instance (Logger l)"
+  pure a = Logger Nil a
+  (<*>) (Logger l1 fn) (Logger l2 a) = Logger (l1 ++ l2) (fn a)
 
 -- | Implement the `Monad` instance for `Logger`.
 -- The `bind` implementation must append log values to maintain associativity.
@@ -304,8 +301,8 @@ instance Applicative (Logger l) where
 -- >>> (\a -> Logger (listh [4,5]) (a+3)) =<< Logger (listh [1,2]) 3
 -- Logger [1,2,4,5] 6
 instance Monad (Logger l) where
-  (=<<) =
-    error "todo: Course.StateT (=<<)#instance (Logger l)"
+  (=<<) fn (Logger l a) = let (Logger l2 b) = fn a
+                          in Logger (l ++ l2) b
 
 -- | A utility function for producing a `Logger` with one log value.
 --
@@ -315,8 +312,7 @@ log1 ::
   l
   -> a
   -> Logger l a
-log1 =
-  error "todo: Course.StateT#log1"
+log1 l a = Logger (l :. Nil) a
 
 -- | Remove all duplicate integers from a list. Produce a log as you go.
 -- If there is an element above 100, then abort the entire computation and produce no result.
