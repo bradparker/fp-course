@@ -203,18 +203,13 @@ instance Functor f => Functor (OptionalT f) where
 -- >>> runOptionalT $ OptionalT (Full (+1) :. Full (+2) :. Nil) <*> OptionalT (Full 1 :. Empty :. Nil)
 -- [Full 2,Empty,Full 3,Empty]
 instance Monad f => Applicative (OptionalT f) where
-  pure ::
-    a
-    -> OptionalT f a
-  pure =
-    error "todo: Course.StateT pure#instance (OptionalT f)"
+  pure = OptionalT . pure . Full
+  (<*>) :: OptionalT f (a -> b) -> OptionalT f a -> OptionalT f b
+  otgab <*> ota = OptionalT $ 
+    do
+        ogab <- runOptionalT otgab
+        onFull (\gab -> runOptionalT $ gab <$> ota) ogab
 
-  (<*>) ::
-    OptionalT f (a -> b)
-    -> OptionalT f a
-    -> OptionalT f b
-  (<*>) =
-    error "todo: Course.StateT (<*>)#instance (OptionalT f)"
 
 -- | Implement the `Monad` instance for `OptionalT f` given a Monad f.
 --
@@ -311,14 +306,6 @@ distinctG ::
 distinctG =
   error "todo: Course.StateT#distinctG"
 
-onFull ::
-  Applicative f =>
-  (t -> f (Optional a))
-  -> Optional t
-  -> f (Optional a)
-onFull g o =
-  case o of
-    Empty ->
-      pure Empty
-    Full a ->
-      g a
+onFull :: Applicative f => (a -> f (Optional b)) -> Optional a -> f (Optional b)
+onFull g (Full a) = g a
+onFull _ Empty = pure Empty
