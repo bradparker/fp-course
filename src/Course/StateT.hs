@@ -161,12 +161,12 @@ distinct' as = eval' (filtering f as) S.empty
 --
 -- >>> distinctF $ listh [1,2,3,2,1,101]
 -- Empty
-distinctF ::
-  (Ord a, Num a) =>
-  List a
-  -> Optional (List a)
-distinctF =
-  error "todo: Course.StateT#distinctF"
+distinctF :: (Ord a, Num a) => List a -> Optional (List a)
+distinctF as = evalT (filtering f as) S.empty
+    where f a = do 
+            s <- getT
+            putT (S.insert a s)
+            StateT (\s' -> if a > 100 then Empty else Full (S.notMember a s, s'))
 
 -- | An `OptionalT` is a functor of an `Optional` value.
 newtype OptionalT f a = OptionalT { runOptionalT :: f (Optional a) }
