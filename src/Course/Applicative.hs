@@ -309,6 +309,7 @@ replicateA n = sequence . replicate n
 -- [True,False]
 -- [1,] [2,] [3,]
 -- [1,2,3],[1,2,],[1,,]
+--
 filtering :: Applicative f => (a -> f Bool) -> List a -> f (List a)
 filtering f as = (fst <$>) <$> (filter snd <$> sequence (f' <$> as))
   where f' a = (,) a <$> f a

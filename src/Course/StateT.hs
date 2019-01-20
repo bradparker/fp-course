@@ -144,7 +144,11 @@ putT s = StateT (\_ -> pure ((), s))
 --
 -- prop> \xs -> distinct' xs == distinct' (flatMap (\x -> x :. x :. Nil) xs)
 distinct' :: (Ord a, Num a) => List a -> List a
-distinct' = error "todo: Course.StateT#distinct'"
+distinct' as = eval' (filtering f as) S.empty
+    where f a = do
+            s <- getT
+            putT (S.insert a s)
+            pure (S.notMember a s)
 
 -- | Remove all duplicate elements in a `List`.
 -- However, if you see a value greater than `100` in the list,
@@ -165,11 +169,7 @@ distinctF =
   error "todo: Course.StateT#distinctF"
 
 -- | An `OptionalT` is a functor of an `Optional` value.
-data OptionalT f a =
-  OptionalT {
-    runOptionalT ::
-      f (Optional a)
-  }
+newtype OptionalT f a = OptionalT { runOptionalT :: f (Optional a) }
 
 -- | Implement the `Functor` instance for `OptionalT f` given a Functor f.
 --
