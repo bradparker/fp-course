@@ -176,12 +176,7 @@ newtype OptionalT f a = OptionalT { runOptionalT :: f (Optional a) }
 -- >>> runOptionalT $ (+1) <$> OptionalT (Full 1 :. Empty :. Nil)
 -- [Full 2,Empty]
 instance Functor f => Functor (OptionalT f) where
-  (<$>) ::
-    (a -> b)
-    -> OptionalT f a
-    -> OptionalT f b
-  (<$>) =
-    error "todo: Course.StateT (<$>)#instance (OptionalT f)"
+  g <$> ot = OptionalT ((g <$>) <$> runOptionalT ot)
 
 -- | Implement the `Applicative` instance for `OptionalT f` given a Monad f.
 --
