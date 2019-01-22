@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module Course.Compose where
 
@@ -16,8 +17,10 @@ newtype Compose f g a =
 -- Implement a Functor instance for Compose
 instance (Functor f, Functor g) =>
     Functor (Compose f g) where
-  (<$>) =
-    error "todo: Course.Compose (<$>)#instance (Compose f g)"
+      (<$>) :: (a -> b) -> Compose f g a -> Compose f g b
+      aToB <$> (Compose fofGofA) =
+        Compose $ ((<$>).(<$>)) aToB fofGofA
+    
 
 instance (Applicative f, Applicative g) =>
   Applicative (Compose f g) where
@@ -31,5 +34,8 @@ instance (Applicative f, Applicative g) =>
 instance (Monad f, Monad g) =>
   Monad (Compose f g) where
 -- Implement the (=<<) function for a Monad instance for Compose
-  (=<<) =
-    error "todo: Course.Compose (<<=)#instance (Compose f g)"
+  (=<<) :: (a -> Compose f g b) -> Compose f g a -> Compose f g b
+  aToCofFofB =<< (Compose fofGofA) = do
+    gOfA <- fofGofA
+    a <- gOfA
+    aToCofFofB a
