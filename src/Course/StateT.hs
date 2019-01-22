@@ -379,29 +379,22 @@ log1 msg =
 -- >>> distinctG $ listh [1,2,3,2,6,106]
 -- Logger ["even number: 2","even number: 2","even number: 6","aborting > 100: 106"] Empty
 distinctG ::
+  forall a.
   (Integral a, Show a) =>
   List a
   -> Logger Chars (Optional (List a))
 distinctG l =
   runOptionalT $ evalT (filtering p l) S.empty
   where
+    p :: a -> StateT (S.Set a) (OptionalT (Logger Chars)) Bool
     p a
-      | a > 100 = error "ahdbc"
-      | even a = error "akdjbbf"
-      | otherwise = error "sdbjkv"
+      | a > 100 = StateT $ const $ OptionalT $ Logger (logOver a) Empty
+      | even a = StateT $ run a (logEven a)
+      | otherwise = StateT $ run a Nil
+    run a logs s = OptionalT $ Logger logs (Full (S.notMember a s, S.insert a s))
+    logOver n = ("aborting > 100: " ++ show' n) :. Nil
+    logEven n = ("even number: " ++ show' n) :. Nil
     
-  
-  -- let
-  --   p a
-  --     | a > 100 = StateT $ const Empty
-  --     | otherwise = (\s -> S.notMember a s <$ putT (S.insert a s)) =<< getT
-  -- in fst <$> runStateT (filtering p l) S.empty 
-
-logInt :: Int -> Optional Chars
-logInt n
-  | n > 100 = Full $ "aborting > 100: " ++ show' n
-  | even n = Full $ "even number: " ++ show' n
-  | otherwise = Empty
 
 onFull ::
   Applicative f =>
