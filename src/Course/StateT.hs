@@ -263,14 +263,19 @@ instance Monad f => Applicative (OptionalT f) where
 -- >>> runOptionalT $ (\a -> OptionalT (Full (a+1) :. Full (a+2) :. Nil)) =<< OptionalT (Full 1 :. Empty :. Nil)
 -- [Full 2,Full 3,Empty]
 instance Monad f => Monad (OptionalT f) where
-  (=<<) fn ot_a = let f_oa = runOptionalT ot_a
-                      map_and_unwrap a = runOptionalT $ fn a
-                      make_fob oa =
-                        case oa of
-                          Empty -> pure Empty
-                          Full a -> map_and_unwrap a
-                      f_ob = make_fob =<< f_oa
-                  in OptionalT f_ob
+    (=<<) :: forall a b. (a -> OptionalT f b) -> OptionalT f a -> OptionalT f b
+    (=<<) fn ot_a = 
+      let 
+        f_oa :: f (Optional a)
+        f_oa = runOptionalT ot_a
+        make_fob :: Optional a -> f (Optional b)
+        make_fob oa =
+          case oa of
+            Empty -> pure Empty
+            Full a -> runOptionalT $ fn a
+        f_ob :: f (Optional b)
+        f_ob = make_fob =<< f_oa
+      in OptionalT f_ob
 
 -- | A `Logger` is a pair of a list of log values (`[l]`) and an arbitrary value (`a`).
 data Logger l a =
@@ -328,12 +333,28 @@ log1 l a = Logger (l :. Nil) a
 --
 -- >>> distinctG $ listh [1,2,3,2,6,106]
 -- Logger ["even number: 2","even number: 2","even number: 6","aborting > 100: 106"] Empty
-distinctG ::
-  (Integral a, Show a) =>
-  List a
-  -> Logger Chars (Optional (List a))
-distinctG =
-  error "todo: Course.StateT#distinctG"
+
+distinctG :: forall a. (Integral a, Show a) =>
+  List a -> Logger Chars (Optional (List a))
+distinctG nums = 
+  let
+    evenLog :: a -> List Chars
+    evenLog num = if even num then ("even number: " ++ (show' num)) :. Nil else Nil
+    appender :: a -> S.Set a -> OptionalT (Logger Chars) (Bool, S.Set a)
+    appender num set = let result = not $ S.member num set
+                           uniqs = S.insert num set
+                       in OptionalT $ Logger (evenLog num) $ Full (result, uniqs)
+    aborter :: a -> OptionalT (Logger Chars) c
+    aborter num = OptionalT $ log1 ("aborting > 100: " ++ (show' num)) Empty
+    stator :: a -> S.Set a -> OptionalT (Logger Chars) (Bool, S.Set a)
+    stator num set = if num > 100 then aborter num else appender num set
+    consider :: a -> StateT (S.Set a) (OptionalT (Logger Chars)) Bool
+    consider num = StateT $ stator num
+    runFilter :: StateT (S.Set a) (OptionalT (Logger Chars)) (List a)
+    runFilter = filtering consider nums
+  in runOptionalT $ evalT runFilter S.empty
+
+
 
 onFull ::
   Applicative f =>
