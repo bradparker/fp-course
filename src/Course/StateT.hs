@@ -272,7 +272,16 @@ log1 l = Logger (l :. Nil)
 -- >>> distinctG $ listh [1,2,3,2,6,106]
 -- Logger ["even number: 2","even number: 2","even number: 6","aborting > 100: 106"] Empty
 distinctG :: (Integral a, Show a) => List a -> Logger Chars (Optional (List a))
-distinctG = error "todo: Course.StateT#distinctG"
+distinctG as = runOptionalT $ evalT (filtering f as) S.empty
+    where 
+        f a = do 
+            s <- getT
+            putT (S.insert a s)
+            StateT (OptionalT . classify a s)
+        classify a s s'
+            | a > 100 = log1 ("aborting > 100: " ++ show' a) Empty
+            | even a = log1 ("even number: " ++ show' a) (Full (S.notMember a s, s'))
+            | otherwise = Logger Nil $ Full (S.notMember a s, s')
 
 onFull :: Applicative f => (a -> f (Optional b)) -> Optional a -> f (Optional b)
 onFull g (Full a) = g a
