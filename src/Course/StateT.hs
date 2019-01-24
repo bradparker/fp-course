@@ -227,7 +227,7 @@ data Logger l a = Logger (List l) a
 -- >>> (+3) <$> Logger (listh [1,2]) 3
 -- Logger [1,2] 6
 instance Functor (Logger l) where
-  (<$>) = error "todo: Course.StateT (<$>)#instance (Logger l)"
+  gab <$> (Logger ls a) = Logger ls (gab a)
 
 -- | Implement the `Applicative` instance for `Logger`.
 --
@@ -237,8 +237,8 @@ instance Functor (Logger l) where
 -- >>> Logger (listh [1,2]) (+7) <*> Logger (listh [3,4]) 3
 -- Logger [1,2,3,4] 10
 instance Applicative (Logger l) where
-  pure = error "todo: Course.StateT pure#instance (Logger l)"
-  (<*>) = error "todo: Course.StateT (<*>)#instance (Logger l)"
+  pure = Logger Nil
+  (Logger ls1 fab) <*> (Logger ls2 a) = Logger (ls1 ++ ls2) (fab a)
 
 -- | Implement the `Monad` instance for `Logger`.
 -- The `bind` implementation must append log values to maintain associativity.
@@ -246,7 +246,9 @@ instance Applicative (Logger l) where
 -- >>> (\a -> Logger (listh [4,5]) (a+3)) =<< Logger (listh [1,2]) 3
 -- Logger [1,2,4,5] 6
 instance Monad (Logger l) where
-  (=<<) = error "todo: Course.StateT (=<<)#instance (Logger l)"
+  galb =<< (Logger cs1 a) =
+    let (Logger cs2 b) = galb a in
+        Logger (cs1 ++ cs2) b
 
 -- | A utility function for producing a `Logger` with one log value.
 --
