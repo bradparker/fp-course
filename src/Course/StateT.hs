@@ -204,18 +204,19 @@ instance Functor f => Functor (OptionalT f) where
 -- [Full 2,Empty,Full 3,Empty]
 instance Monad f => Applicative (OptionalT f) where
   pure = OptionalT . pure . Full
-  (<*>) :: OptionalT f (a -> b) -> OptionalT f a -> OptionalT f b
-  otgab <*> ota = OptionalT $ 
+  tgab <*> ta = OptionalT $ 
     do
-        ogab <- runOptionalT otgab
-        onFull (\gab -> runOptionalT $ gab <$> ota) ogab
+        ogab <- runOptionalT tgab
+        onFull (\gab -> runOptionalT $ gab <$> ta) ogab
 
 -- | Implement the `Monad` instance for `OptionalT f` given a Monad f.
 --
 -- >>> runOptionalT $ (\a -> OptionalT (Full (a+1) :. Full (a+2) :. Nil)) =<< OptionalT (Full 1 :. Empty :. Nil)
 -- [Full 2,Full 3,Empty]
 instance Monad f => Monad (OptionalT f) where
-  (=<<) = error "todo: Course.StateT (=<<)#instance (OptionalT f)"
+  gatb =<< ta = OptionalT $ do 
+    oa <- runOptionalT ta
+    onFull (runOptionalT . gatb) oa
 
 -- | A `Logger` is a pair of a list of log values (`[l]`) and an arbitrary value (`a`).
 data Logger l a = Logger (List l) a
