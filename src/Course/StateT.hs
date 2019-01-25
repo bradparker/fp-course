@@ -17,9 +17,6 @@ import Course.State
 import qualified Data.Set as S
 import qualified Prelude as P
 
-(><) :: (a -> b) -> (c -> d) -> (a, c) -> (b, d)
-(><) fab fcd (a, c) = (fab a, fcd c)
-
 -- $setup
 -- >>> import Test.QuickCheck
 -- >>> import qualified Prelude as P(fmap)
@@ -34,7 +31,7 @@ newtype StateT s f a = StateT { runStateT :: s -> f (a, s) }
 -- [(3,0)]
 instance Functor f => Functor (StateT s f) where
   (<$>) :: (a -> b) -> StateT s f a -> StateT s f b
-  (<$>) fab st = StateT (\s -> (><) fab id <$> runStateT st s)
+  (<$>) fab st = StateT (\s -> first fab <$> runStateT st s)
 
 -- | Implement the `Applicative` instance for @StateT s f@ given a @Monad f@.
 --
