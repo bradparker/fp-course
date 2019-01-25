@@ -147,6 +147,9 @@ distinct' as = eval' (filtering f as) S.empty
             putT (S.insert a s)
             pure (S.notMember a s)
 
+when :: Applicative f => Bool -> f () -> f ()
+when condition f = if condition then f else pure ()
+
 -- | Remove all duplicate elements in a `List`.
 -- However, if you see a value greater than `100` in the list,
 -- abort the computation by producing `Empty`.
@@ -161,9 +164,10 @@ distinct' as = eval' (filtering f as) S.empty
 distinctF :: (Ord a, Num a) => List a -> Optional (List a)
 distinctF as = evalT (filtering f as) S.empty
     where f a = do 
-            s <- getT
-            putT (S.insert a s)
-            StateT (\s' -> if a > 100 then Empty else Full (S.notMember a s, s'))
+          when (a > 100) (StateT $ \_ -> Empty)
+          s <- getT
+          putT (S.insert a s)
+          pure (S.notMember a s)
 
 -- | An `OptionalT` is a functor of an `Optional` value.
 newtype OptionalT f a = OptionalT { runOptionalT :: f (Optional a) }
