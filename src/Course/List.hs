@@ -340,6 +340,10 @@ pushEnd :: List a -> a -> List a
 pushEnd Nil x = x :. Nil
 pushEnd (h :. t) x = h :. pushEnd t x
 
+tail :: List a -> List a
+tail Nil = Nil
+tail (_ :. t) = t
+
 
 largeList ::
   List Int

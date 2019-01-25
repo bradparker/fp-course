@@ -252,11 +252,13 @@ instance Functor f => Functor (OptionalT f) where
 instance Monad f => Applicative (OptionalT f) where
   pure a = OptionalT $ pure (Full a)
 
-  (<*>) ot_fn ot_a = let f_fn = runOptionalT ot_fn
-                         f_a = runOptionalT ot_a
-                         mapA fn = ((<$>).(<$>)) fn f_a
-                         make_fob ofn = onFull mapA ofn
-                     in OptionalT $ make_fob =<< f_fn
+  (<*>) ot_fn ot_a = 
+    let 
+      f_fn = runOptionalT ot_fn
+      f_a = runOptionalT ot_a
+      mapA fn = ((<$>).(<$>)) fn f_a
+      make_fob ofn = onFull mapA ofn
+    in OptionalT $ make_fob =<< f_fn
 
 -- | Implement the `Monad` instance for `OptionalT f` given a Monad f.
 --
