@@ -3,6 +3,7 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Course.Parser where
 
@@ -119,8 +120,9 @@ constantParser =
 -- True
 character ::
   Parser Char
-character =
-  error "todo: Course.Parser#character"
+character = P (\case
+    Nil -> UnexpectedEof
+    (x:.xs) -> Result xs x)
 
 -- | Parsers can map.
 -- Write a Functor instance for a @Parser@.
@@ -132,8 +134,14 @@ instance Functor Parser where
     (a -> b)
     -> Parser a
     -> Parser b
-  (<$>) =
-     error "todo: Course.Parser (<$>)#instance Parser"
+  (<$>) a2b (P i2PRofA) = P run
+    where 
+      run i = case i2PRofA i of
+        Result input a -> Result input (a2b a)
+        UnexpectedEof -> UnexpectedEof
+        ExpectedEof input -> ExpectedEof input
+        UnexpectedChar c -> UnexpectedChar c
+        UnexpectedString s -> UnexpectedString s
 
 -- | Return a parser that always succeeds with the given value and consumes no input.
 --
@@ -142,8 +150,8 @@ instance Functor Parser where
 valueParser ::
   a
   -> Parser a
-valueParser =
-  error "todo: Course.Parser#valueParser"
+valueParser a =
+  P (`Result` a)
 
 -- | Return a parser that tries the first parser for a successful value.
 --
@@ -166,8 +174,9 @@ valueParser =
   Parser a
   -> Parser a
   -> Parser a
-(|||) =
-  error "todo: Course.Parser#(|||)"
+(P one) ||| (P two) = P (\i -> 
+  bool (one i) (two i) $ isErrorResult $ parse (P one) i)
+  
 
 infixl 3 |||
 
