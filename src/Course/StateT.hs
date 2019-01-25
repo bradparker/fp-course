@@ -218,7 +218,7 @@ distinctF = flip evalT S.empty . filtering runAndLog
       | otherwise = not <$> isDuplicateF a
 
 -- | An `OptionalT` is a functor of an `Optional` value.
-data OptionalT f a =
+newtype OptionalT f a =
   OptionalT {
     runOptionalT ::
       f (Optional a)
