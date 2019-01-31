@@ -71,6 +71,13 @@ foldLeft f b (h :. t) = let b' = f b h in b' `seq` foldLeft f b' t
 headOr :: a -> List a -> a
 headOr = foldRight const
 
+head :: List a -> Optional a
+head = foldRight ((Full .) . const) Empty
+
+tail :: List a -> Optional (List a)
+tail Nil = Empty
+tail (_ :. la) = Full la
+
 -- | The product of the elements of a list.
 --
 -- >>> product Nil

@@ -41,8 +41,11 @@ instance Extend ExactlyOne where
 -- [[[4,5,6],[1,2,3]],[[4,5,6]]]
 instance Extend List where
   (<<=) :: (List a -> b) -> List a -> List b
-  (<<=) la2b la = unfoldr f la
-    where f (a:as) = f
+  (<<=) la2b = unfoldr f
+    where 
+        f Nil = Empty
+        f la@(_ :. la') = Full (la2b la, la')
+        
 
 -- | Implement the @Extend@ instance for @Optional@.
 --
@@ -52,12 +55,8 @@ instance Extend List where
 -- >>> id <<= Empty
 -- Empty
 instance Extend Optional where
-  (<<=) ::
-    (Optional a -> b)
-    -> Optional a
-    -> Optional b
-  (<<=) =
-    error "todo: Course.Extend (<<=)#instance Optional"
+  (<<=) :: (Optional a -> b) -> Optional a -> Optional b
+  (<<=) = error "todo: Course.Extend (<<=)#instance Optional"
 
 -- | Duplicate the functor using extension.
 --
