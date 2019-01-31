@@ -71,9 +71,5 @@ instance Extend Optional where
 --
 -- >>> cojoin Empty
 -- Empty
-cojoin ::
-  Extend f =>
-  f a
-  -> f (f a)
-cojoin =
-  error "todo: Course.Extend#cojoin"
+cojoin :: Extend f => f a -> f (f a)
+cojoin = (id <<=)
