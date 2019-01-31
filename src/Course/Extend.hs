@@ -56,7 +56,7 @@ instance Extend List where
 -- Empty
 instance Extend Optional where
   (<<=) :: (Optional a -> b) -> Optional a -> Optional b
-  (<<=) = error "todo: Course.Extend (<<=)#instance Optional"
+  (<<=) oa2b oa = oa2b . const oa <$> oa
 
 -- | Duplicate the functor using extension.
 --
