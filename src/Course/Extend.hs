@@ -66,10 +66,10 @@ instance Extend Optional where
     (Optional a -> b)
     -> Optional a
     -> Optional b
-  f <<= a =
-    case a of
+  f <<= oa =
+    case oa of
       Empty -> Empty
-      Full _ -> Full (f a)
+      Full _ -> Full (f oa)
 
 -- | Duplicate the functor using extension.
 --
