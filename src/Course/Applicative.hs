@@ -48,7 +48,7 @@ instance Applicative ExactlyOne where
     a
     -> ExactlyOne a
   pure = ExactlyOne
-  (<*>) :: 
+  (<*>) ::
     ExactlyOne (a -> b)
     -> ExactlyOne a
     -> ExactlyOne b
@@ -321,6 +321,8 @@ sequence = foldLeft rewrapAppend (pure Nil)
 
 
 -- | Replicate an effect a given number of times.
+--
+-- /Tip:/ Use `Course.List#replicate`.
 --
 -- >>> replicateA 4 (ExactlyOne "hi")
 -- ExactlyOne ["hi","hi","hi","hi"]

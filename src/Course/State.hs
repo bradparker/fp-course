@@ -98,7 +98,7 @@ instance Applicative (State s) where
   (<*>) ::
     State s (a -> b)
     -> State s a
-    -> State s b 
+    -> State s b
   (<*>) st_fn st_a = State (\s-> let (fn, s_fn) = runState st_fn s
                                      (a, s_sa) = runState st_a s_fn
                                  in (fn a, s_sa))
