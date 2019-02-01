@@ -451,7 +451,7 @@ ageParser =
 firstNameParser ::
   Parser Chars
 firstNameParser =
-   ((:. Nil) <$> upper) :. (list lower) :. Nil
+   (:.) <$> upper <*> list lower
 
 -- | Write a parser for Person.surname.
 --
@@ -473,7 +473,7 @@ firstNameParser =
 surnameParser ::
   Parser Chars
 surnameParser =
-  error "todo: Course.Parser#surnameParser"
+  (:.) <$> upper <*> ((++) <$> thisMany 5 lower <*> list lower)
 
 -- | Write a parser for Person.smoker.
 --
@@ -492,7 +492,13 @@ surnameParser =
 smokerParser ::
   Parser Bool
 smokerParser =
-  error "todo: Course.Parser#smokerParser"
+  p <$> (is 'y' ||| is 'n')
+  where
+    p c = case c of
+      'y' -> True
+      _ -> False
+
+  
 
 -- | Write part of a parser for Person#phoneBody.
 -- This parser will only produce a string of digits, dots or hyphens.
@@ -514,7 +520,7 @@ smokerParser =
 phoneBodyParser ::
   Parser Chars
 phoneBodyParser =
-  error "todo: Course.Parser#phoneBodyParser"
+  list (digit ||| is '.' ||| is '-')
 
 -- | Write a parser for Person.phone.
 --
@@ -536,7 +542,7 @@ phoneBodyParser =
 phoneParser ::
   Parser Chars
 phoneParser =
-  error "todo: Course.Parser#phoneParser"
+  (++) <$> list1 digit <*> phoneBodyParser <* is '#'
 
 -- | Write a parser for Person.
 --
@@ -590,7 +596,12 @@ phoneParser =
 personParser ::
   Parser Person
 personParser =
-  error "todo: Course.Parser#personParser"
+  Person 
+    <$> ageParser 
+    <*>~ firstNameParser 
+    <*>~ surnameParser 
+    <*>~ smokerParser
+    <*>~ phoneParser
 
 -- Make sure all the tests pass!
 

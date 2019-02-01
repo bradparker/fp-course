@@ -33,8 +33,8 @@ instance Extend ExactlyOne where
     (ExactlyOne a -> b)
     -> ExactlyOne a
     -> ExactlyOne b
-  f <<= a =
-    ExactlyOne (f a)
+  fa2b <<= fa =
+    ExactlyOne (fa2b fa)
 
 -- | Implement the @Extend@ instance for @List@.
 --
@@ -51,8 +51,13 @@ instance Extend List where
     (List a -> b)
     -> List a
     -> List b
-  _ <<= Nil = Nil
-  f <<= a@(_:.xs) = f a :. (f <<= xs)
+  -- _ <<= Nil = Nil
+  -- f <<= a@(_:.xs) = f a :. (f <<= xs)
+  f <<= as = unfoldr go as
+    where 
+      go Nil = Empty
+      go l = Full (f l, drop 1 l)
+
 
 -- | Implement the @Extend@ instance for @Optional@.
 --
@@ -66,10 +71,10 @@ instance Extend Optional where
     (Optional a -> b)
     -> Optional a
     -> Optional b
-  f <<= oa =
+  oa2b <<= oa =
     case oa of
       Empty -> Empty
-      Full _ -> Full (f oa)
+      Full _ -> Full (oa2b oa)
 
 -- | Duplicate the functor using extension.
 --
