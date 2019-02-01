@@ -41,4 +41,6 @@ instance Comonad ExactlyOne where
   (a -> b)
   -> f a
   -> f b
-(<$$>) = (<$>)
+(<$$>) a2b fa = run <<= fa
+  where
+    run = a2b . copure
