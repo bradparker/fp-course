@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module Course.Compose where
 
@@ -22,10 +23,15 @@ instance (Applicative f, Applicative g) =>
   Applicative (Compose f g) where
 -- Implement the pure function for an Applicative instance for Compose
   pure a = Compose $ pure (pure a)
+
 -- Implement the (<*>) function for an Applicative instance for Compose
-  (<*>) (Compose fn) (Compose f) = undefined
+  (<*>) :: forall a b. Compose f g (a -> b) -> Compose f g a -> Compose f g b
+  (<*>) (Compose ffn) (Compose fa) = Compose $ x <*> fa
+    where
+      x :: f(g a -> g b)
+      x = (<*>) <$> ffn
 
 instance (Monad f, Monad g) =>
   Monad (Compose f g) where
 -- Implement the (=<<) function for a Monad instance for Compose
-  (=<<) fn (Compose f) = undefined
+  (=<<) _ _ = undefined
