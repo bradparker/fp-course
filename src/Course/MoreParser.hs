@@ -1,6 +1,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Course.MoreParser where
 
@@ -307,8 +308,10 @@ sepby1 ::
   Parser a
   -> Parser s
   -> Parser (List a)
-sepby1 pa ps =
-  list1 (pa <* (ps ||| (valueParser "")))
+sepby1 pa ps = do
+  x <- pa
+  xs <- list (ps *> pa)
+  pure (x:.xs)
 
 -- | Write a function that produces a list of values coming off the given parser,
 -- separated by the second given parser.
@@ -330,8 +333,8 @@ sepby ::
   Parser a
   -> Parser s
   -> Parser (List a)
-sepby =
-  error "todo: Course.MoreParser#sepby"
+sepby pa ps =
+  sepby1 pa ps ||| pure Nil
 
 -- | Write a parser that asserts that there is no remaining input.
 --
@@ -342,8 +345,9 @@ sepby =
 -- True
 eof ::
   Parser ()
-eof =
-  error "todo: Course.MoreParser#eof"
+eof = P (\case
+  Nil -> Result Nil ()
+  l -> ExpectedEof l)
 
 -- | Write a parser that produces a character that satisfies all of the given predicates.
 --
@@ -366,8 +370,10 @@ eof =
 satisfyAll ::
   List (Char -> Bool)
   -> Parser Char
-satisfyAll =
-  error "todo: Course.MoreParser#satisfyAll"
+satisfyAll ps = do
+    c <- character
+    bool (unexpectedCharParser c) (pure c) (and $ ($ c) <$> ps)
+  
 
 -- | Write a parser that produces a character that satisfies any of the given predicates.
 --
@@ -387,8 +393,9 @@ satisfyAll =
 satisfyAny ::
   List (Char -> Bool)
   -> Parser Char
-satisfyAny =
-  error "todo: Course.MoreParser#satisfyAny"
+satisfyAny ps = do
+    c <- character
+    bool (unexpectedCharParser c) (pure c) (or $ ($ c) <$> ps)
 
 -- | Write a parser that parses between the two given characters, separated by a comma character ','.
 --
@@ -416,5 +423,5 @@ betweenSepbyComma ::
   -> Char
   -> Parser a
   -> Parser (List a)
-betweenSepbyComma =
-  error "todo: Course.MoreParser#betweenSepbyComma"
+betweenSepbyComma o c p =
+  betweenCharTok o c (sepby p (is ','))
