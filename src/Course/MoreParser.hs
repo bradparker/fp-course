@@ -67,7 +67,7 @@ tok pa = pa <* spaces
 charTok ::
   Char
   -> Parser Char
-charTok c = tok $ is c
+charTok = tok . is
 
 -- | Write a parser that parses a comma ',' followed by 0 or more spaces.
 --
@@ -124,7 +124,7 @@ string = traverse is
 stringTok ::
   Chars
   -> Parser Chars
-stringTok cs = tok $ string cs
+stringTok = tok . string
 
 -- | Write a function that tries the given parser, otherwise succeeds by producing the given value.
 --
@@ -166,7 +166,7 @@ digits1 = list1 digit
 oneof ::
   Chars
   -> Parser Char
-oneof cs = satisfy (`elem` cs)
+oneof = satisfy . flip elem
 
 -- | Write a function that parses any character, but fails if it is in the given string.
 --
@@ -180,7 +180,7 @@ oneof cs = satisfy (`elem` cs)
 noneof ::
   Chars
   -> Parser Char
-noneof cs = satisfy (`notElem` cs)
+noneof = satisfy . flip notElem
 
 -- | Write a function that applies the first parser, runs the third parser keeping the result,
 -- then runs the second parser and produces the obtained result.

@@ -144,7 +144,7 @@ instance Functor Parser where
 valueParser ::
   a
   -> Parser a
-valueParser a = P $ \input -> Result input a
+valueParser = P . flip Result
 
 -- | Return a parser that tries the first parser for a successful value.
 --
@@ -202,9 +202,9 @@ instance Monad Parser where
     (a -> Parser b)
     -> Parser a
     -> Parser b
-  (=<<) a2pb pa = P $ \i -> run (parse pa i)
+  (=<<) a2pb pa = P (run . parse pa)
     where
-      run ra = onResult ra (\i a -> parse (a2pb a) i)
+      run ra = onResult ra (flip $ parse . a2pb)
 
 -- | Write an Applicative functor instance for a @Parser@.
 -- /Tip:/ Use @(=<<)@.
@@ -218,9 +218,9 @@ instance Applicative Parser where
     Parser (a -> b)
     -> Parser a
     -> Parser b
-  (<*>) pa2b pa = P $ \i -> run (parse pa2b i)
+  (<*>) pa2b pa = P (run . parse pa2b)
     where
-      run ra2b = onResult ra2b (\i a2b -> a2b <$> parse pa i)
+      run ra2b = onResult ra2b (flip (<$>) . parse pa)
 
 
 -- | Return a parser that produces a character but fails if
@@ -254,7 +254,7 @@ satisfy p = run =<< character
 -- /Tip:/ Use the @satisfy@ function.
 is ::
   Char -> Parser Char
-is c = satisfy (== c)
+is = satisfy . (==)
 
 -- | Return a parser that produces a character between '0' and '9' but fails if
 --
@@ -398,7 +398,7 @@ thisMany ::
   Int
   -> Parser a
   -> Parser (List a)
-thisMany n pa = sequenceParser $ replicate n pa
+thisMany n = sequenceParser . replicate n
 
 -- | This one is done for you.
 --
