@@ -50,23 +50,25 @@ instance Traversable Optional where
 -- >>> sequenceA (Full (*10)) 6
 -- Full 60
 sequenceA :: (Applicative f, Traversable t) => t (f a) -> f (t a)
-sequenceA = error "todo: Course.Traversable#sequenceA"
+sequenceA = traverse id
 
 instance (Traversable f, Traversable g) => Traversable (Compose f g) where
 -- Implement the traverse function for a Traversable instance for Compose
-  traverse = error "todo: Course.Traversable traverse#instance (Compose f g)"
+  traverse :: Applicative h => (a -> h b) -> Compose f g a -> h (Compose f g b)
+  traverse a2hb (Compose fga) = Compose <$> traverse (traverse a2hb) fga
 
 -- | The `Product` data type contains one value from each of the two type constructors.
 data Product f g a = Product (f a) (g a) deriving (Show, Eq)
 
 instance (Functor f, Functor g) => Functor (Product f g) where
 -- Implement the (<$>) function for a Functor instance for Product
-  (<$>) = error "todo: Course.Traversable (<$>)#instance (Product f g)"
+  (<$>) :: (a -> b) -> Product f g a -> Product f g b
+  a2b <$> Product fa ga = Product (a2b <$> fa) (a2b <$> ga)
 
-instance (Traversable f, Traversable g) =>
-  Traversable (Product f g) where
+instance (Traversable f, Traversable g) => Traversable (Product f g) where
 -- Implement the traverse function for a Traversable instance for Product
-  traverse = error "todo: Course.Traversable traverse#instance (Product f g)"
+  traverse :: Applicative h => (a -> h b) -> Product f g a -> h (Product f g b)
+  traverse a2hb (Product fa ga) = traverse a2hb fa  traverse a2hb ga
 
 -- | The `Coproduct` data type contains one value from either of the two type constructors.
 data Coproduct f g a = InL (f a) | InR (g a) deriving (Show, Eq)
