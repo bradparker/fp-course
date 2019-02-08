@@ -238,7 +238,7 @@ jsonObject ::
 jsonObject =
   betweenSepbyComma '{' '}' kvpair
   where
-    kvpair = (,) <$> (spaces *> jsonString <* spaces <* charTok ':') <*> jsonValue
+    kvpair = (,) <$> spaces *> jsonString <* spaces <* charTok ':' <*> jsonValue
 
 
 -- | Parse a JSON value.
@@ -255,8 +255,16 @@ jsonObject =
 -- Result >< [("key1",JsonTrue),("key2",JsonArray [JsonRational (7 % 1),JsonFalse]),("key3",JsonObject [("key4",JsonNull)])]
 jsonValue ::
   Parser JsonValue
-jsonValue =
-   error "lasndc"
+jsonValue = spaces *> value <* spaces
+  where 
+    value =
+      JsonString      <$> jsonString  |||
+      JsonRational    <$> jsonNumber  |||
+      JsonObject      <$> jsonObject  |||
+      JsonArray       <$> jsonArray   |||
+      const JsonTrue  <$> jsonTrue    |||
+      const JsonFalse <$> jsonFalse   |||
+      const JsonNull  <$> jsonNull
 
 -- | Read a file into a JSON value.
 --
@@ -264,5 +272,6 @@ jsonValue =
 readJsonValue ::
   FilePath
   -> IO (ParseResult JsonValue)
-readJsonValue =
-  error "todo: Course.JsonParser#readJsonValue"
+readJsonValue path = do
+  c <- readFile path
+  pure $ parse jsonValue c

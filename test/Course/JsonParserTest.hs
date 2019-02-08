@@ -25,12 +25,15 @@ test_JsonParser =
   , jsonNullTest
   , jsonArrayTest
   , jsonObjectTest
+  , jsonValueTest
   ]
 
 jsonStringTest :: TestTree
 jsonStringTest =
   testGroup "jsonString" [
-    testCase "parse whole ASCII input" $
+    testCase "parse empty string" $
+      parse jsonString "\"\"" @?= Result "" ""
+  ,  testCase "parse whole ASCII input" $
       parse jsonString "\" abc\"" @?= Result "" " abc"
   , testCase "parse only the first string of input" $
       parse jsonString "\"abc\"def" @?= Result "def" "abc"
@@ -129,4 +132,11 @@ jsonValueTest =
                              :. Nil
                              )
        in parse jsonObject "{ \"key1\" : true , \"key2\" : [7, false] , \"key3\" : { \"key4\" : null } }" @?= result
+  , testCase "in the file" $
+      let result = Result "" (  ("key1",JsonTrue)
+                             :. ("key2",JsonArray (JsonRational (7 % 1) :. JsonFalse :. Nil))
+                             :. ("key3",JsonObject (("key4",JsonNull) :. Nil))
+                             :. Nil
+                             )
+       in parse jsonObject "{\n  \"name\": \"immcalc\",\n  \"version\": \"1.0.0\",\n  \"description\": \"\",\n  \"main\": \"index.js\",\n  \"scripts\": {\n    \"test\": \"echo \\\"Error: no test specified\\\" && exit 1\"\n  },\n  \"keywords\": [],\n  \"author\": \"\",\n  \"license\": \"ISC\",\n  \"devDependencies\": {\n    \"create-elm-app\": \"^2.2.3\",\n    \"elm\": \"^0.19.0-bugfix2\",\n    \"elm-format\": \"^0.8.1\",\n    \"elm-test\": \"^0.19.0-rev3\"\n  },\n  \"dependencies\": {\n    \"minimal.css\": \"^1.0.1\"\n  }\n}\n" @?= result
   ]
