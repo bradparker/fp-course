@@ -344,6 +344,9 @@ tail :: List a -> List a
 tail Nil = Nil
 tail (_ :. t) = t
 
+firstElm :: List a -> Optional a
+firstElm Nil = Empty
+firstElm (h :. _) = Full h
 
 largeList ::
   List Int

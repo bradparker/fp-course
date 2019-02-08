@@ -119,8 +119,11 @@ constantParser =
 -- True
 character ::
   Parser Char
-character =
-  error "todo: Course.Parser#character"
+character = P $ \i -> 
+  let
+    makeResult = Result (tail i)
+    mapTo fn = fn <$> firstElm i
+  in mapTo makeResult ?? UnexpectedEof
 
 -- | Parsers can map.
 -- Write a Functor instance for a @Parser@.
@@ -132,8 +135,9 @@ instance Functor Parser where
     (a -> b)
     -> Parser a
     -> Parser b
-  (<$>) =
-     error "todo: Course.Parser (<$>)#instance Parser"
+  (<$>) fn pa = P $ \i ->
+    onResult (parse pa i) makeResult
+      where makeResult i' a = Result i' (fn a)
 
 -- | Return a parser that always succeeds with the given value and consumes no input.
 --
@@ -142,8 +146,7 @@ instance Functor Parser where
 valueParser ::
   a
   -> Parser a
-valueParser =
-  error "todo: Course.Parser#valueParser"
+valueParser a = P $ \i -> Result i a
 
 -- | Return a parser that tries the first parser for a successful value.
 --
@@ -166,8 +169,9 @@ valueParser =
   Parser a
   -> Parser a
   -> Parser a
-(|||) =
-  error "todo: Course.Parser#(|||)"
+p1 ||| p2 = P $ \i ->
+    let r1 = parse p1 i
+    in bool r1 (parse p2 i) (isErrorResult r1)
 
 infixl 3 |||
 
@@ -198,8 +202,11 @@ instance Monad Parser where
     (a -> Parser b)
     -> Parser a
     -> Parser b
-  (=<<) =
-    error "todo: Course.Parser (=<<)#instance Parser"
+  fn =<< pa = P $ \i ->
+    let
+      result = parse pa i
+      next i' a = parse (fn a) i'
+    in onResult result next
 
 -- | Write an Applicative functor instance for a @Parser@.
 -- /Tip:/ Use @(=<<)@.
@@ -213,8 +220,8 @@ instance Applicative Parser where
     Parser (a -> b)
     -> Parser a
     -> Parser b
-  (<*>) =
-    error "todo: Course.Parser (<*>)#instance Parser"
+  pfn <*> pa = makePb =<< pfn
+    where makePb fn = fn <$> pa 
 
 -- | Return a parser that produces a character but fails if
 --
@@ -232,8 +239,8 @@ instance Applicative Parser where
 satisfy ::
   (Char -> Bool)
   -> Parser Char
-satisfy =
-  error "todo: Course.Parser#satisfy"
+satisfy fn = withChar =<< character
+  where withChar c = bool (unexpectedCharParser c) (valueParser c) (fn c)
 
 -- | Return a parser that produces the given character but fails if
 --
@@ -244,8 +251,7 @@ satisfy =
 -- /Tip:/ Use the @satisfy@ function.
 is ::
   Char -> Parser Char
-is =
-  error "todo: Course.Parser#is"
+is c = satisfy (== c)
 
 -- | Return a parser that produces a character between '0' and '9' but fails if
 --
@@ -256,8 +262,7 @@ is =
 -- /Tip:/ Use the @satisfy@ and @Data.Char#isDigit@ functions.
 digit ::
   Parser Char
-digit =
-  error "todo: Course.Parser#digit"
+digit = satisfy isDigit
 
 --
 -- | Return a parser that produces a space character but fails if
@@ -269,8 +274,7 @@ digit =
 -- /Tip:/ Use the @satisfy@ and @Data.Char#isSpace@ functions.
 space ::
   Parser Char
-space =
-  error "todo: Course.Parser#space"
+space = satisfy isSpace
 
 -- | Return a parser that continues producing a list of values from the given parser.
 --
@@ -296,8 +300,8 @@ space =
 list ::
   Parser a
   -> Parser (List a)
-list =
-  error "todo: Course.Parser#list"
+list pa = go =<< pa
+  where go a = valueParser (produce id a)
 
 -- | Return a parser that produces at least one value from the given parser then
 -- continues producing a list of values from the given parser (to ultimately produce a non-empty list).

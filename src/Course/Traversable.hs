@@ -90,9 +90,9 @@ instance (Traversable f, Traversable g) =>
    traverse fn (Product f g) = Product <$> traverse fn f <*> traverse fn g
 
 -- traverse fn (Product f g) = h_composer <*> traverse fn f
-  --   where
-  --     h_composer = composer <$> traverse fn g
-  --     composer gb = (\fb -> Product fb gb)
+--     where
+--       h_composer = composer <$> traverse fn g
+--       composer gb = (\fb -> Product fb gb)
 
 
 -- | The `Coproduct` data type contains one value from either of the two type constructors.
