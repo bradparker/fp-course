@@ -28,15 +28,16 @@ class Functor t => Traversable t where
 
 instance Traversable List where
   traverse :: Applicative f => (a -> f b) -> List a -> f (List b)
-  traverse f = foldRight (\a b -> (:.) <$> f a <*> b) (pure Nil)
+  traverse a2fb = sequence . (a2fb <$>)
 
 instance Traversable ExactlyOne where
   traverse :: Applicative f => (a -> f b) -> ExactlyOne a -> f (ExactlyOne b)
-  traverse = error "todo: Course.Traversable traverse#instance ExactlyOne"
+  traverse a2fb = (ExactlyOne <$>) . a2fb . runExactlyOne
 
 instance Traversable Optional where
   traverse :: Applicative f => (a -> f b) -> Optional a -> f (Optional b)
-  traverse = error "todo: Course.Traversable traverse#instance Optional"
+  traverse a2fb (Full a) = Full <$> a2fb a
+  traverse _ Empty = pure Empty
 
 -- | Sequences a traversable value of structures to a structure of a traversable value.
 --
@@ -56,7 +57,7 @@ instance (Traversable f, Traversable g) => Traversable (Compose f g) where
   traverse = error "todo: Course.Traversable traverse#instance (Compose f g)"
 
 -- | The `Product` data type contains one value from each of the two type constructors.
-data Product f g a = Product (f a) (g a)
+data Product f g a = Product (f a) (g a) deriving (Show, Eq)
 
 instance (Functor f, Functor g) => Functor (Product f g) where
 -- Implement the (<$>) function for a Functor instance for Product
@@ -68,7 +69,7 @@ instance (Traversable f, Traversable g) =>
   traverse = error "todo: Course.Traversable traverse#instance (Product f g)"
 
 -- | The `Coproduct` data type contains one value from either of the two type constructors.
-data Coproduct f g a = InL (f a) | InR (g a)
+data Coproduct f g a = InL (f a) | InR (g a) deriving (Show, Eq)
 
 instance (Functor f, Functor g) => Functor (Coproduct f g) where
 -- Implement the (<$>) function for a Functor instance for Coproduct
