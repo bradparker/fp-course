@@ -348,6 +348,9 @@ firstElm :: List a -> Optional a
 firstElm Nil = Empty
 firstElm (h :. _) = Full h
 
+one :: a -> List a
+one a = a :. Nil
+
 largeList ::
   List Int
 largeList =

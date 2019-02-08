@@ -300,8 +300,7 @@ space = satisfy isSpace
 list ::
   Parser a
   -> Parser (List a)
-list pa = go =<< pa
-  where go a = valueParser (produce id a)
+list pa = list1 pa ||| pure Nil
 
 -- | Return a parser that produces at least one value from the given parser then
 -- continues producing a list of values from the given parser (to ultimately produce a non-empty list).
@@ -319,8 +318,8 @@ list pa = go =<< pa
 list1 ::
   Parser a
   -> Parser (List a)
-list1 =
-  error "todo: Course.Parser#list1"
+list1 pa = q =<< pa
+  where q a = (list pa)
 
 -- | Return a parser that produces one or more space characters
 -- (consuming until the first non-space) but fails if
