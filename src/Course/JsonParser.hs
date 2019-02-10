@@ -272,6 +272,5 @@ jsonValue = spaces *> value <* spaces
 readJsonValue ::
   FilePath
   -> IO (ParseResult JsonValue)
-readJsonValue path = do
-  c <- readFile path
-  pure $ parse jsonValue c
+readJsonValue path =
+  parse jsonValue <$> readFile path
