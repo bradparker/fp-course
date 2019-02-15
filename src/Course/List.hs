@@ -449,7 +449,7 @@ produce f x = x :. produce f (f x)
 notReverse ::
   List a
   -> List a
-notReverse = id
+notReverse = reverse
 
 ---- End of list exercises
 
