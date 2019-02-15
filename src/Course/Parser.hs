@@ -516,11 +516,14 @@ phoneBodyParser = list (digit ||| is '-' ||| is '.')
 -- True
 phoneParser ::
   Parser Chars
-phoneParser = do
-  d <- digit
-  middle <- phoneBodyParser
-  is '#'
-  pure (d :. middle)
+
+-- phoneParser = do
+--   d <- digit
+--   middle <- phoneBodyParser
+--   is '#'
+--   pure (d :. middle)
+
+phoneParser = (:.) <$> digit <*> phoneBodyParser <* is '#'
   
 
 -- | Write a parser for Person.
