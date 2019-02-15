@@ -45,7 +45,7 @@ instance Traversable ExactlyOne where
     (a -> f b)
     -> ExactlyOne a
     -> f (ExactlyOne b)
-  traverse g = (ExactlyOne <$>) . g . runExactlyOne
+  traverse g = (pure <$>) . g . runExactlyOne
 
 instance Traversable Optional where
   traverse ::
@@ -54,7 +54,7 @@ instance Traversable Optional where
     -> Optional a
     -> f (Optional b)
   traverse _ Empty = pure Empty
-  traverse g (Full a) = Full <$> g a
+  traverse g (Full a) = pure <$> g a
 
 -- | Sequences a traversable value of structures to a structure of a traversable value.
 --

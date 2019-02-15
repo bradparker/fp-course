@@ -233,7 +233,10 @@ jsonObject ::
 jsonObject = betweenSepbyComma '{' '}' property
   where
     property = (,) <$> jsonKey <*> jsonValue
-    jsonKey = spaces *> jsonString <* spaces <* charTok ':'
+
+jsonKey ::
+  Parser Chars
+jsonKey = spaces *> jsonString <* spaces <* charTok ':'
 
 -- | Parse a JSON value.
 --

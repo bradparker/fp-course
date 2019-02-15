@@ -265,7 +265,7 @@ find' ::
   (a -> Bool)
   -> List a
   -> Optional a
-find' f as = foldRight (\a b -> if f a then Full a else b) Empty as
+find' f = foldRight (\a b -> if f a then Full a else b) Empty
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -327,7 +327,7 @@ produce f x = x :. produce f (f x)
 notReverse ::
   List a
   -> List a
-notReverse = id
+notReverse = reverse -- id
 
 ---- End of list exercises
 
