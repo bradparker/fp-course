@@ -119,7 +119,7 @@ instance Applicative (State s) where
   --     getSFromStA2B = exec stsa2b
   --     getSFromStA = exec stsa
 
--- | Implement the `Bind` instance for `State s`.
+-- | Implement the `Monad` instance for `State s`.
 --
 -- >>> runState ((const $ put 2) =<< put 1) 0
 -- ((),2)
