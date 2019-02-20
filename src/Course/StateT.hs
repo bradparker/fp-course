@@ -202,7 +202,7 @@ isDistinct' :: Ord a => a -> State' (S.Set a) Bool
 isDistinct' a = state' $ \s -> (S.notMember a s, S.insert a s)
 
 distinct' ::
-  (Ord a, Num a) =>
+  Ord a =>
   List a
   -> List a
 distinct' = (flip eval') S.empty . filtering isDistinct'
@@ -237,7 +237,7 @@ distinctLT100 a = do
   pure (S.notMember a seen)
 
 distinctF ::
-  (Ord a, Num a) =>
+  Ord a =>
   List a
   -> Optional (List a)
 distinctF as = evalT (filtering distinctLT100 as) S.empty
