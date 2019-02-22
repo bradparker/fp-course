@@ -7,6 +7,7 @@ module Course.MoreParserTest where
 import           Test.Tasty            (TestTree, testGroup)
 import           Test.Tasty.HUnit      (testCase, (@?=), assertBool)
 
+import           Course.Applicative    ((>>), return)
 import           Course.Core
 import           Course.List           (List (..))
 import           Course.Parser
