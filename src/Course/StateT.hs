@@ -237,7 +237,7 @@ distinctLT100 a = do
   pure (S.notMember a seen)
 
 distinctF ::
-  Ord a =>
+  (Num a, Ord a) =>
   List a
   -> Optional (List a)
 distinctF as = evalT (filtering distinctLT100 as) S.empty
