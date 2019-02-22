@@ -186,7 +186,7 @@ putT x = StateT (\_-> pure ((), x))
 --
 -- prop> \xs -> distinct' xs == distinct' (flatMap (\x -> x :. x :. Nil) xs)
 distinct' ::
-  (Ord a, Num a) =>
+  Ord a =>
   List a
   -> List a
 distinct' = distinct --TODO?
@@ -205,7 +205,7 @@ distinct' = distinct --TODO?
 -- >>> distinctF $ listh [1,2,3,2,1,101]
 -- Empty
 distinctF ::
-  (Ord a, Num a) =>
+  Ord a =>
   List a
   -> Optional (List a)
 distinctF lst = evalT (filtering f lst) S.empty
