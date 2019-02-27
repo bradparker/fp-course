@@ -1,0 +1,10 @@
+{
+  "one": "this is one",
+  "two": 45.6,
+  "three": [ "a thing", false],
+  "four": {
+    "four_one": "inside four",
+    "four_two": 3,
+    "four_three": null
+  }
+}

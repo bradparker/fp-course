@@ -58,8 +58,8 @@ bindOptional f (Full x) = f x
   Optional a
   -> a
   -> a
-Empty ?? a = a 
-Full a ?? _ = a 
+Empty ?? a = a
+Full a ?? _ = a
 
 -- | Try the first optional for a value. If it has a value, use it; otherwise,
 -- use the second value.
@@ -96,6 +96,12 @@ optional ::
   -> b
 optional _ e Empty = e
 optional f _ (Full x) = f x
+
+isFullOptional :: Optional a -> Bool
+isFullOptional = optional (const True) False
+
+isEmptyOptional :: Optional a -> Bool
+isEmptyOptional = optional (const False) True
 
 applyOptional :: Optional (a -> b) -> Optional a -> Optional b
 applyOptional f a = bindOptional (\f' -> mapOptional f' a) f
