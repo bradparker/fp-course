@@ -6,8 +6,9 @@ in
     packages = _: [package];
     nativeBuildInputs = [
       nixpkgs.cabal-install
-      nixpkgs.hlint
+      nixpkgs.entr
       nixpkgs.ghcid
       nixpkgs.haskellPackages.doctest
+      nixpkgs.hlint
     ];
   }

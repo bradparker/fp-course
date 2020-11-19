@@ -1,0 +1,5 @@
+#! /bin/bash
+
+echo "Waiting for changes ..."
+
+echo "src/Course/$1.hs" | entr -cp doctest -isrc /_
