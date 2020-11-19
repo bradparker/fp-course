@@ -1,6 +1,4 @@
 #! /bin/bash
 
 echo "Running tests matching pattern: $1"
-cabal test tasty --show-detail=direct --test-option=--pattern="Tests.$1"
-
-
+cabal test tasty --test-option=--pattern="Tests.$1"
