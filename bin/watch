@@ -1,2 +1,2 @@
 #! /bin/bash
-ghcid test/TastyLoader.hs --test "defaultMain $1"
+ghcid test/TastyLoader.hs --test "defaultMain test_$1"
