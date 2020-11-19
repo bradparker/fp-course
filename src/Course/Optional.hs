@@ -27,10 +27,8 @@ mapOptional ::
   (a -> b)
   -> Optional a
   -> Optional b
-mapOptional f oa =
-  case oa of
-    Empty -> Empty
-    Full a -> Full (f a)
+mapOptional f =
+  optional (Full . f) Empty
 
 -- | Bind the given function on the possible value.
 --
@@ -46,10 +44,8 @@ bindOptional ::
   (a -> Optional b)
   -> Optional a
   -> Optional b
-bindOptional f oa =
-  case oa of
-    Empty -> Empty
-    Full a -> f a
+bindOptional f =
+  optional f Empty
 
 -- | Return the possible value if it exists; otherwise, the second argument.
 --
@@ -63,9 +59,7 @@ bindOptional f oa =
   -> a
   -> a
 (??) oa d =
-  case oa of
-    Empty -> d
-    Full a -> a
+  optional id d oa
 
 -- | Try the first optional for a value. If it has a value, use it; otherwise,
 -- use the second value.
@@ -85,10 +79,8 @@ bindOptional f oa =
   Optional a
   -> Optional a
   -> Optional a
-(<+>) oa ob =
-  case oa of
-    Empty -> ob
-    Full _ -> oa
+(<+>) ox oy =
+  optional Full oy ox
 
 -- | Replaces the Full and Empty constructors in an optional.
 --
