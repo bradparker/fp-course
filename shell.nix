@@ -1,9 +1,13 @@
-{ nixpkgs ? import ./nixpkgs.nix, compiler ? "default"}:
 let
-  inherit (nixpkgs) pkgs;
-  drv = import ./default.nix { inherit nixpkgs compiler; };
-  drvWithTools = pkgs.haskell.lib.addBuildDepends drv [
-      pkgs.cabal-install pkgs.hlint pkgs.haskellPackages.hindent pkgs.haskellPackages.ghcid
-    ];
+  nixpkgs = import (import ./nix/sources.nix).nixpkgs {};
+  package = nixpkgs.callPackage (import ./.) {};
 in
-  if pkgs.lib.inNixShell then drvWithTools.env else drvWithTools
+  nixpkgs.haskellPackages.shellFor {
+    packages = _: [package];
+    nativeBuildInputs = [
+      nixpkgs.cabal-install
+      nixpkgs.hlint
+      nixpkgs.ghcid
+      nixpkgs.haskellPackages.doctest
+    ];
+  }
